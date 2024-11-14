@@ -4,9 +4,9 @@ const cors = require("cors");
 const indexRouter = require("./routers/index");
 const app = express();
 require("dotenv").config();
+const models = require("./models");
 const PORT = process.env.PORT || 5001;
 
-require("dotenv").config();
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

@@ -1,5 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -13,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.init(
     {
-      userId: {
+      user_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -22,11 +23,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      profileImgUrl: {
+      profile_img_url: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      socialLoginType: {
+      social_login_type: {
         type: DataTypes.ENUM("NAVER", "KAKAO", "GOOGLE", "APPLE"),
         allowNull: false,
       },
@@ -34,17 +35,23 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      accountId: {
+      account_id: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
+      },
+      created_by: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
       },
     },
     {
       sequelize,
       modelName: "User",
+      tableName: "users",
       timestamps: true,
     }
   );
+
   return User;
 };
