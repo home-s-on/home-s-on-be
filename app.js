@@ -14,6 +14,14 @@ app.use(bodyParser.json());
 app.use("/api", indexRouter);
 
 app.listen(PORT, () => {
-  // 여기에 나중에 db 연결도 해줘야 함
+  models.sequelize
+    .sync({ force: false })
+    .then(() => {
+      console.log("db 연결 성공");
+    })
+    .catch((err) => {
+      console.log(`db 연결 실패 : ${err}`);
+      process.exit();
+    });
   console.log(`server on ${PORT}`);
 });
