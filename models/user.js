@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
+        allowNull: false,
       },
       nickname: {
         type: DataTypes.STRING,
@@ -39,10 +40,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-      },
-      created_by: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
       },
     },
     {
