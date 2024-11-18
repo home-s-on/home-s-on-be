@@ -13,7 +13,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
-          model: "House",
+          model: "houses",
           key: "house_id",
         },
         onUpdate: "CASCADE",
@@ -23,7 +23,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
-          model: "DefaultRoom",
+          model: "defaultrooms",
           key: "Droom_type_id",
         },
         onUpdate: "CASCADE",
