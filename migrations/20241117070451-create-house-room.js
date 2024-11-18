@@ -10,15 +10,19 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       house_room_id: {
+        allowNull: false,
         type: Sequelize.INTEGER,
       },
       house_id: {
+        allowNull: false,
         type: Sequelize.INTEGER,
       },
       Droom_type_id: {
+        allowNull: false,
         type: Sequelize.INTEGER,
       },
       is_delete: {
+        allowNull: false,
         type: Sequelize.BOOLEAN,
       },
       createdAt: {

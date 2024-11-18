@@ -13,6 +13,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       Droom_name: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       createdAt: {

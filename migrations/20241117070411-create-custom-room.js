@@ -13,9 +13,11 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       house_room_id: {
+        allowNull: false,
         type: Sequelize.INTEGER,
       },
       Croom_name: {
+        allowNull: false,
         type: Sequelize.STRING,
       },
       createdAt: {
