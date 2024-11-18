@@ -3,15 +3,6 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("userhouses", {
-      house_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        primaryKey: true,
-        references: {
-          model: "houses",
-          key: "house_id",
-        },
-      },
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -19,6 +10,15 @@ module.exports = {
         references: {
           model: "users",
           key: "user_id",
+        },
+      },
+      house_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        //primaryKey: true,
+        references: {
+          model: "houses",
+          key: "house_id",
         },
       },
       is_owner: {
@@ -37,6 +37,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("UserHouses");
+    await queryInterface.dropTable("userhouses");
   },
 };
