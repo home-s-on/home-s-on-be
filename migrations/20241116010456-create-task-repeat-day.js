@@ -1,23 +1,23 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('taskrepeatdays', {
+    await queryInterface.createTable("taskrepeatdays", {
       task_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
           model: "tasks",
-          key: "id"
-        }
+          key: "task_id",
+        },
       },
       day_of_week: {
         type: Sequelize.INTEGER,
         allowNull: false,
         validate: {
           min: 0,
-          max: 6
-        }
+          max: 6,
+        },
       },
       createdAt: {
         allowNull: false,
@@ -30,6 +30,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('taskrepeatdays');
-  }
+    await queryInterface.dropTable("taskrepeatdays");
+  },
 };

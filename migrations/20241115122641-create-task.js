@@ -1,38 +1,38 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('tasks', {
-      id: {
+    await queryInterface.createTable("tasks", {
+      task_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       house_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: "houses",
-          key: "id"
-        }
+          key: "id",
+        },
       },
       title: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       memo: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
       },
       alarm: {
-        type: Sequelize.TIME
+        type: Sequelize.TIME,
       },
       assignee_id: {
         type: Sequelize.ARRAY(Sequelize.INTEGER),
         allowNull: false,
       },
       due_date: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       complete: {
         type: Sequelize.BOOLEAN,
@@ -40,15 +40,15 @@ module.exports = {
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Tasks');
-  }
+    await queryInterface.dropTable("Tasks");
+  },
 };
