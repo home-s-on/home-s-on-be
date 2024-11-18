@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       house_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        primaryKey: true,
+        //primaryKey: true,
       },
       user_id: {
         type: DataTypes.INTEGER,

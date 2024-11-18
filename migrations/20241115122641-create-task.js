@@ -14,7 +14,7 @@ module.exports = {
         allowNull: false,
         references: {
           model: "houses",
-          key: "id",
+          key: "house_id",
         },
       },
       title: {
