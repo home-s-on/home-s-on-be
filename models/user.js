@@ -14,10 +14,14 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.init(
     {
-      user_id: {
+      id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
+        allowNull: false,
+      },
+      password: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
       nickname: {
@@ -30,10 +34,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       social_login_type: {
         type: DataTypes.ENUM("NAVER", "KAKAO", "GOOGLE", "APPLE"),
-        allowNull: false,
-      },
-      password: {
-        type: DataTypes.STRING,
         allowNull: false,
       },
       account_id: {

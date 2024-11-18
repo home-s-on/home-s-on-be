@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Member.init(
     {
-      member_id: {
+      id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,

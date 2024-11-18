@@ -8,17 +8,24 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      this.belongsTo(models.House, { foreignKey: "house_id" });
-      this.hasOne(models.TaskRepeatDay, { foreignKey: "task_id" });
-      this.belongsTo(models.HouseRoom, { foreignKey: "house_room_id" });
+      this.belongsTo(models.House, { foreignKey: "houes_id" });
+      this.belongsTo(models.HouseRoom, { foreignKey: "houes_room_id" });
     }
   }
   Task.init(
     {
-      task_id: {
+      id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
+        allowNull: false,
+      },
+      houes_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      houes_room_id: {
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       title: {

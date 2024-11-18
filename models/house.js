@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   House.init(
     {
-      house_id: {
+      id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
