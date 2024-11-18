@@ -3,13 +3,10 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("customrooms", {
-      id: {
+      Croom_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
-      },
-      Croom_id: {
         type: Sequelize.INTEGER,
       },
       house_room_id: {
