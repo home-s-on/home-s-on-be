@@ -12,10 +12,22 @@ module.exports = {
       house_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
+        references: {
+          model: "House",
+          key: "house_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       Droom_type_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
+        references: {
+          model: "DefaultRoom",
+          key: "Droom_type_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "RESTRICT",
       },
       is_delete: {
         allowNull: false,

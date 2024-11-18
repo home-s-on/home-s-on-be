@@ -12,6 +12,12 @@ module.exports = {
       house_room_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
+        references: {
+          model: "HouseRoom",
+          key: "house_room_id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       Croom_name: {
         allowNull: false,
