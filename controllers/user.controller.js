@@ -1,49 +1,19 @@
-const { User } = require("../models");
+const User = require("../models/User");
 
 const userController = {};
 
-userController.createUser = async (req, res) => {
+userController.getUser = async (req, res) => {
   try {
-    // 요청 본문에서 데이터 추출
-    const {
-      nickname,
-      profile_img_url,
-      social_login_type,
-      password,
-      account_id,
-    } = req.body;
+    const { userId } = req;
+    const user = await User.findOne({
+      where: { user_id: userId },
+    });
 
-    // 필수 값들 체크
-    if (
-      !nickname ||
-      !profile_img_url ||
-      !social_login_type ||
-      !password ||
-      !account_id
-    ) {
-      return res.status(400).json({
-        status: "fail",
-        message: "All fields are required",
-      });
+    if (user) {
+      return res.status(200).json({ status: "success", user });
     }
-
-    // 새 사용자 생성
-    const newUser = await User.create({
-      nickname,
-      profile_img_url,
-      social_login_type,
-      password,
-      account_id,
-    });
-
-    // 성공 응답
-    return res.status(201).json({
-      status: "success",
-      message: "User created successfully",
-      data: newUser,
-    });
+    throw new Error("invalid token");
   } catch (e) {
-    // 예외 처리
     return res.status(400).json({ status: "fail", message: e.message });
   }
 };
