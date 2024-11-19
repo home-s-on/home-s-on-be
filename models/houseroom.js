@@ -8,17 +8,20 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      //DefaultRoom 관계
-      this.belongsTo(models.DefaultRoom, { foreignKey: "Droom_type_id" });
-      // CustomRoom 관계
-      this.hasMany(models.CustomRoom, { foreignKey: "house_room_id" });
-      // House 관계
-      this.belongsTo(models.House, { foreignKey: "house_id" });
+      HouseRoom.belongsTo(models.UserHouse, {
+        foreignKey: "house_id",
+        sourceKey: "id",
+      });
+
+      HouseRoom.hasMany(models.Task, {
+        foreignKey: "house_room_id",
+        sourceKey: "id",
+      });
     }
   }
   HouseRoom.init(
     {
-      house_room_id: {
+      id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -28,13 +31,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      Droom_type_id: {
-        type: DataTypes.INTEGER,
+      room_name: {
+        type: DataTypes.STRING,
         allowNull: false,
-      },
-      is_delete: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
       },
     },
     {

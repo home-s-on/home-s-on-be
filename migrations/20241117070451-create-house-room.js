@@ -3,7 +3,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("houserooms", {
-      house_room_id: {
+      id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -14,24 +14,14 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: {
           model: "houses",
-          key: "house_id",
+          key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      Droom_type_id: {
+      room_name: {
         allowNull: false,
-        type: Sequelize.INTEGER,
-        references: {
-          model: "defaultrooms",
-          key: "Droom_type_id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "RESTRICT",
-      },
-      is_delete: {
-        allowNull: false,
-        type: Sequelize.BOOLEAN,
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,

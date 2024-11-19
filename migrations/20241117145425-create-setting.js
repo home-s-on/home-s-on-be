@@ -12,7 +12,7 @@ module.exports = {
         primaryKey: true,
         references: {
           model: "members",
-          key: "member_id",
+          key: "id",
         },
       },
       user_id: {
@@ -21,7 +21,7 @@ module.exports = {
         primaryKey: true,
         references: {
           model: "users",
-          key: "user_id",
+          key: "id",
         },
       },
       createdAt: {

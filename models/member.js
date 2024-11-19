@@ -8,14 +8,20 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      Member.hasOne(models.Setting, {
+        foreignKey: "member_id",
+        sourceKey: "id",
+      });
+
       Member.belongsTo(models.House, {
         foreignKey: "house_id",
+        targetKey: "id",
       });
     }
   }
   Member.init(
     {
-      member_id: {
+      id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,

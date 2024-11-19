@@ -9,16 +9,16 @@ module.exports = {
         primaryKey: true,
         references: {
           model: "users",
-          key: "user_id",
+          key: "id",
         },
       },
       house_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        //primaryKey: true,
+        primaryKey: true,
         references: {
           model: "houses",
-          key: "house_id",
+          key: "id",
         },
       },
       is_owner: {

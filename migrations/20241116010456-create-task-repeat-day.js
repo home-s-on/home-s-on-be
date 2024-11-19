@@ -8,7 +8,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: {
           model: "tasks",
-          key: "task_id",
+          key: "id",
         },
       },
       day_of_week: {

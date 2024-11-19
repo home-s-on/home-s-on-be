@@ -9,15 +9,22 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      User.hasOne(models.UserHouse, {
+        foreignKey: "user_id",
+        sourceKey: "id",
+      });
     }
   }
   User.init(
     {
-      user_id: {
+      id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
+        allowNull: false,
+      },
+      password: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
       nickname: {
@@ -30,10 +37,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       social_login_type: {
         type: DataTypes.ENUM("NAVER", "KAKAO", "GOOGLE", "APPLE"),
-        allowNull: false,
-      },
-      password: {
-        type: DataTypes.STRING,
         allowNull: false,
       },
       account_id: {

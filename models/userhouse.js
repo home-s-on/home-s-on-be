@@ -10,10 +10,17 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       UserHouse.belongsTo(models.User, {
         foreignKey: "user_id",
+        targetKey: "id",
       });
 
       UserHouse.belongsTo(models.House, {
         foreignKey: "house_id",
+        targetKey: "id",
+      });
+
+      UserHouse.hasOne(models.Setting, {
+        foreignKey: "user_id",
+        sourceKey: "user_id",
       });
     }
   }
@@ -22,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       house_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        //primaryKey: true,
+        primaryKey: true,
       },
       user_id: {
         type: DataTypes.INTEGER,

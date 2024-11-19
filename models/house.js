@@ -8,12 +8,35 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      House.hasMany(models.UserHouse, {
+        foreignKey: "house_id",
+        sourceKey: "id",
+      });
+
+      House.hasOne(models.HouseRoom, {
+        foreignKey: "house_id",
+        sourceKey: "id",
+      });
+
+      House.hasMany(models.UserHouse, {
+        foreignKey: "house_id",
+        sourceKey: "id",
+      });
+
+      House.hasMany(models.Task, {
+        foreignKey: "house_id",
+        sourceKey: "id",
+      });
+
+      House.hasMany(models.Member, {
+        foreignKey: "house_id",
+        sourceKey: "id",
+      });
     }
   }
   House.init(
     {
-      house_id: {
+      id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
