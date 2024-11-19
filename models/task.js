@@ -32,11 +32,11 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         allowNull: false,
       },
-      houes_id: {
+      house_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      houes_room_id: {
+      house_room_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
