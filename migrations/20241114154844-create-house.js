@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       invite_code: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       createdAt: {
