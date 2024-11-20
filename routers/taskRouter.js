@@ -6,5 +6,7 @@ const taskController = require("../controllers/taskController");
 router.get("/house/:houseId", taskController.getAllTasksByHouseId);
 // 나의 할 일
 router.get("/mytasks/:userId", taskController.getMyTasks);
+//지난 할 일
+router.get("/pasttasks/:userId", taskController.getPastTasks);
 
 module.exports = router;

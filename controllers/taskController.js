@@ -121,3 +121,67 @@ exports.getMyTasks = async (req, res) => {
     });
   }
 };
+
+// <<지난 할일 보기>>
+exports.getPastTasks = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, error: "사용자 ID가 필요합니다." });
+    }
+
+    // 사용자의 house_id 찾기
+    const userHouse = await UserHouse.findOne({
+      where: { user_id: userId },
+      attributes: ["house_id"],
+    });
+
+    if (!userHouse) {
+      return res.status(404).json({
+        success: false,
+        error:
+          "사용자의 집을 찾을 수 없습니다. 사용자가 집에 등록되어있는지 확인해주세요.",
+      });
+    }
+
+    const currentDate = new Date();
+
+    // 해당 house_id의 모든 할일
+    const allTasks = await Task.findAll({
+      where: {
+        house_id: userHouse.house_id,
+      },
+      include: [
+        {
+          model: HouseRoom,
+          attributes: ["id", "room_name"],
+        },
+      ],
+      order: [["due_date", "DESC"]],
+    });
+
+    // 지난 할일 필터링
+    const pastTasks = allTasks.filter(
+      (task) =>
+        new Date(task.due_date) < currentDate &&
+        task.assignee_id.includes(parseInt(userId))
+    );
+
+    if (pastTasks.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, error: "지난 할일이 없습니다." });
+    }
+
+    res.json({ success: true, data: pastTasks });
+  } catch (error) {
+    console.error("지난 할일 목록을 가져올 수 없습니다:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
