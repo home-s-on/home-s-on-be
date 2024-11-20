@@ -48,7 +48,9 @@ authController.loginWithEmail = async (req, res) => {
       if (isMatch) {
         const token = await user.generateToken();
         console.log("이메일 로그인 성공");
-        return res.status(200).json({ status: "success", user, token });
+        return res
+          .status(200)
+          .json({ status: "success", data: { user, token } });
       }
     }
 

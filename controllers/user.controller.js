@@ -8,10 +8,12 @@ userController.createUser = async (req, res) => {
     let { email, password } = req.body;
 
     if (!email || !password) {
-      throw new Error("이메일과 비밀번호는 필수입력값 입니다.");
+      throw new Error("이메일과 비밀번호는 필수 입력값 입니다.");
     }
 
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({
+      where: { email, social_login_type: "EMAIL" },
+    });
     if (user) {
       throw new Error("동일한 이메일로 가입되어 있는 계정이 있습니다.");
     }
@@ -20,7 +22,6 @@ userController.createUser = async (req, res) => {
     await User.create({
       email,
       password,
-      nickname: email.split("@")[0],
       social_login_type: "EMAIL",
     });
 
@@ -42,6 +43,33 @@ userController.getUser = async (req, res) => {
       return res.status(200).json({ status: "success", user });
     }
     throw new Error("invalid token");
+  } catch (e) {
+    return res.status(400).json({ status: "fail", message: e.message });
+  }
+};
+
+userController.updateUser = async (req, res) => {
+  try {
+    const { userId } = req;
+    const { nickname, profile_img_url } = req.body;
+
+    if (!nickname || !profile_img_url) {
+      throw new Error("닉네임과 프로필은 필수 입력값 입니다.");
+    }
+
+    const [updated] = await User.update(
+      { nickname, profile_img_url },
+      { where: { id: userId } }
+    );
+
+    if (updated) {
+      const updatedUser = await User.findOne({ where: { id: userId } });
+      return res.status(200).json({ status: "success", data: updatedUser });
+    }
+
+    return res
+      .status(404)
+      .json({ status: "fail", message: "유저를 찾을 수 없습니다." });
   } catch (e) {
     return res.status(400).json({ status: "fail", message: e.message });
   }
