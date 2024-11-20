@@ -185,3 +185,69 @@ exports.getPastTasks = async (req, res) => {
     });
   }
 };
+
+//<<할일 추가>>
+exports.addTask = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // 인증 미들웨어 사용자 ID
+    //const userId = req.user.id;
+
+    const { house_room_id, title, memo, alarm, assignee_id, due_date } =
+      req.body;
+
+    // 필수 정보
+    if (!house_room_id || !title || !assignee_id) {
+      return res.status(400).json({
+        success: false,
+        error: "필수 정보 누락 !",
+      });
+    }
+
+    // 사용자의 house_id 찾기
+    const userHouse = await UserHouse.findOne({
+      where: { user_id: userId },
+      attributes: ["house_id"],
+    });
+
+    if (!userHouse) {
+      return res.status(404).json({
+        success: false,
+        error:
+          "사용자의 집을 찾을 수 없습니다. 사용자가 집에 등록되어 있는지 확인해주세요.",
+      });
+    }
+
+    //새 할일 생성
+    const newTask = await Task.create({
+      house_id: userHouse.house_id,
+      house_room_id,
+      title,
+      memo,
+      alarm,
+      assignee_id,
+      due_date,
+      complete: false, // 기본 false , 완료 true
+    });
+
+    //생성한 새 할 일 정보 조회
+    const createdTask = await Task.findOne({
+      where: { id: newTask.id },
+      include: [
+        {
+          model: HouseRoom,
+          attributes: ["id", "room_name"],
+        },
+      ],
+    });
+
+    res.status(201).json({ success: true, data: createdTask });
+  } catch (error) {
+    console.error("할일을 추가할 수 없습니다:", error);
+    res.status(500).json({
+      success: false,
+      error: "서버 내부 오류로 인해 할일을 추가할 수 없습니다.",
+    });
+  }
+};
