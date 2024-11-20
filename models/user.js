@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         allowNull: false,
       },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       password: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -38,11 +42,6 @@ module.exports = (sequelize, DataTypes) => {
       social_login_type: {
         type: DataTypes.ENUM("NAVER", "KAKAO", "GOOGLE", "APPLE"),
         allowNull: false,
-      },
-      account_id: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
       },
     },
     {
