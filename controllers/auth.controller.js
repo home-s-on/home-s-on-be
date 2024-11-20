@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const House = require("../models/House");
 const {
   generateAccessToken,
   generateRefreshToken,
@@ -8,6 +9,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const { ClientBase } = require("pg");
+const { randomStringGenerator } = require("../utils/randomStringGenerator");
 require("dotenv").config();
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
