@@ -1,5 +1,5 @@
-const User = require("../models/User");
-const House = require("../models/House");
+const { User, House } = require("../models");
+
 const {
   generateAccessToken,
   generateRefreshToken,
@@ -32,6 +32,25 @@ authController.authenticate = async (req, res, next) => {
   }
 };
 
+authController.loginWithEmail = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const social_login_type = "EMAIL";
+    let user = await User.findOne({ where: { email, social_login_type } });
+    if (user) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) {
+        // token
+        const token = await user.generateToken();
+        return res.status(200).json({ status: "success", user, token });
+      }
+    }
+    throw new Error("invalid email or password");
+  } catch (e) {
+    res.status(400).json({ status: "fail", message: e.message });
+  }
+};
+
 authController.loginWithGoogle = async (req, res) => {
   try {
     const { token } = req.body;
@@ -50,9 +69,9 @@ authController.loginWithGoogle = async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       const newPassword = await bcrypt.hash(randomPassword, salt);
       user = await User.create({
-        name,
         email,
         password: newPassword,
+        social_login_type: "GOOGLE",
       });
     }
 

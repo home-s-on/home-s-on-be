@@ -1,13 +1,18 @@
 "use strict";
 const { Model } = require("sequelize");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+    async generateToken() {
+      const token = jwt.sign({ id: this.id }, JWT_SECRET_KEY, {
+        expiresIn: "1d",
+      });
+      return token;
+    }
+
     static associate(models) {
       User.hasOne(models.UserHouse, {
         foreignKey: "user_id",
@@ -33,14 +38,12 @@ module.exports = (sequelize, DataTypes) => {
       },
       nickname: {
         type: DataTypes.STRING,
-        allowNull: false,
       },
       profile_img_url: {
         type: DataTypes.STRING,
-        allowNull: false,
       },
       social_login_type: {
-        type: DataTypes.ENUM("NAVER", "KAKAO", "GOOGLE", "APPLE"),
+        type: DataTypes.ENUM("EMAIL", "KAKAO", "GOOGLE", "APPLE"),
         allowNull: false,
       },
     },
@@ -48,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "User",
       tableName: "users",
-      timestamps: true,
+      timestamps: false,
     }
   );
 
