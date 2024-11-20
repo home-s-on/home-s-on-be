@@ -8,12 +8,12 @@ userController.createUser = async (req, res) => {
     let { email, password } = req.body;
 
     if (!email || !password) {
-      throw new Error("Email and password are required");
+      throw new Error("이메일과 비밀번호는 필수입력값 입니다.");
     }
 
     const user = await User.findOne({ where: { email } });
     if (user) {
-      throw new Error("User already exists");
+      throw new Error("동일한 이메일로 가입되어 있는 계정이 있습니다.");
     }
     const salt = await bcrypt.genSalt(10);
     password = await bcrypt.hash(password, salt);
@@ -33,8 +33,9 @@ userController.createUser = async (req, res) => {
 userController.getUser = async (req, res) => {
   try {
     const { userId } = req;
+    console.log("getUser", userId);
     const user = await User.findOne({
-      where: { user_id: userId },
+      where: { id: userId },
     });
 
     if (user) {
