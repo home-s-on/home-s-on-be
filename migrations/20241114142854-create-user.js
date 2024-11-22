@@ -17,7 +17,7 @@ module.exports = {
       nickname: {
         type: Sequelize.STRING,
       },
-      profile_img_url: {
+      photo: {
         type: Sequelize.STRING,
       },
       social_login_type: {

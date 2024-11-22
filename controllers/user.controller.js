@@ -51,8 +51,16 @@ userController.getUser = async (req, res) => {
 userController.updateUser = async (req, res) => {
   try {
     const { userId } = req;
+    const { nickname } = req.body;
     const newProfile = req.body;
-    newProfile.profile_img_url = req.filename;
+    newProfile.photo = req.filename;
+
+    if (!nickname || !newProfile.photo) {
+      return res.status(400).json({
+        status: "fail",
+        message: "닉네임과 프로필은 필수 입력값입니다.",
+      });
+    }
 
     const [updatedRows] = await User.update(newProfile, {
       where: { id: userId },
