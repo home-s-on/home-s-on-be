@@ -229,6 +229,7 @@ exports.addTask = async (req, res) => {
       assignee_id,
       due_date,
       complete: false, // 기본 false , 완료 true
+      user_id: userId,
     });
 
     //생성한 새 할 일 정보 조회
@@ -239,6 +240,10 @@ exports.addTask = async (req, res) => {
           model: HouseRoom,
           attributes: ["id", "room_name"],
         },
+        {
+          model: User,
+          attributes: ["id", "nickname", "profile_img_url"],
+        },
       ],
     });
 
@@ -248,6 +253,42 @@ exports.addTask = async (req, res) => {
     res.status(500).json({
       success: false,
       error: "서버 내부 오류로 인해 할일을 추가할 수 없습니다.",
+    });
+  }
+};
+
+//<<할일 삭제>>
+exports.deleteTask = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    const taskId = parseInt(req.params.taskId);
+
+    const task = await Task.findOne({
+      where: { id: taskId },
+      include: [{ model: User, attributes: ["id"] }],
+    });
+
+    if (!task) {
+      return res
+        .status(404)
+        .json({ success: false, error: "할일을 찾을 수 없습니다." });
+    }
+
+    // 할일 등록자 확인
+    if (task.User.id !== userId) {
+      return res.status(403).json({
+        success: false,
+        error: "삭제 권한이 없습니다.",
+      });
+    }
+
+    await task.destroy();
+    res.json({ success: true, message: "할일이 삭제되었습니다" });
+  } catch (error) {
+    console.error("할일을 삭제할 수 없습니다:", error);
+    res.status(500).json({
+      success: false,
+      error: "서버 내부 오류로 인해 할일을 삭제할 수 없습니다.",
     });
   }
 };

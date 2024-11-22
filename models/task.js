@@ -22,6 +22,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "house_room_id",
         targetKey: "id",
       });
+      //user_id 추가
+      Task.belongsTo(models.User, {
+        foreignKey: "user_id",
+        targetKey: "id",
+      });
     }
   }
   Task.init(
@@ -37,6 +42,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       house_room_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      //user_id추가
+      user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
