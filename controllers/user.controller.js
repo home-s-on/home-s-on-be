@@ -51,20 +51,20 @@ userController.getUser = async (req, res) => {
 userController.updateUser = async (req, res) => {
   try {
     const { userId } = req;
-    const { nickname, profile_img_url } = req.body;
+    const newProfile = req.body;
+    newProfile.profile_img_url = req.filename;
 
-    if (!nickname || !profile_img_url) {
-      throw new Error("닉네임과 프로필은 필수 입력값 입니다.");
-    }
+    const [updatedRows] = await User.update(newProfile, {
+      where: { id: userId },
+    });
 
-    const [updated] = await User.update(
-      { nickname, profile_img_url },
-      { where: { id: userId } }
-    );
-
-    if (updated) {
+    if (updatedRows) {
       const updatedUser = await User.findOne({ where: { id: userId } });
-      return res.status(200).json({ status: "success", data: updatedUser });
+      return res.status(200).json({
+        status: "success",
+        message: "프로필 업데이트 성공",
+        data: updatedUser,
+      });
     }
 
     return res
