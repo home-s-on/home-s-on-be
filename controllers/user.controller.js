@@ -34,7 +34,7 @@ userController.createUser = async (req, res) => {
 userController.getUser = async (req, res) => {
   try {
     const { userId } = req;
-    console.log("getUser", userId);
+    // console.log("getUser", userId);
     const user = await User.findOne({
       where: { id: userId },
     });

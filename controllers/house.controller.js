@@ -1,4 +1,4 @@
-const { sequelize, House, UserHouse } = require("../models");
+const { sequelize, House, UserHouse, User } = require("../models");
 const { randomStringGenerator } = require("../utils/randomStringGenerator");
 const houseController = {};
 
@@ -37,14 +37,23 @@ async function createHouseAndUserHouse(userId, inviteCode) {
 
 houseController.createHouse = async (req, res) => {
   try {
-    const userId = req.body.user_id;
-    const inviteCode = randomStringGenerator();
+    const { userId } = req;
+    // console.log(userId);
+    const inviteCode = await randomStringGenerator();
     const house = await createHouseAndUserHouse(userId, inviteCode);
 
+    const user = await User.findOne({ where: { id: userId } });
+
+    if (!user) {
+      return res.status(404).json({ message: "유저를 찾을 수 없습니다." });
+    }
+
+    const nickname = user.nickname;
+
     res.status(201).json({
+      status: "success",
       message: "House created successfully",
-      houseId: house.id,
-      inviteCode: house.invite_code,
+      data: { houseId: house.id, nickname, inviteCode: house.invite_code },
     });
   } catch (error) {
     console.error("Error creating house:", error);
@@ -53,10 +62,10 @@ houseController.createHouse = async (req, res) => {
 };
 
 houseController.getInviteCode = async (req, res) => {
-  const user_id = req.params.user_id;
-
+  const userId = req;
+  // console.log("getInviteCode", userId);
   try {
-    const userHouse = await UserHouse.findOne({ where: { user_id: user_id } });
+    const userHouse = await UserHouse.findOne({ where: { user_id: userId } });
     if (!userHouse) {
       return res
         .status(404)
