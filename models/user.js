@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       nickname: {
         type: DataTypes.STRING,
       },
-      profile_img_url: {
+      photo: {
         type: DataTypes.STRING,
       },
       social_login_type: {
