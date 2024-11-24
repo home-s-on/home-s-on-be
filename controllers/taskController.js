@@ -73,7 +73,7 @@ exports.getMyTasks = async (req, res) => {
         .json({ success: false, error: "사용자 ID가 필요합니다." });
     }
 
-    // 사용자의 house_id찾기
+    // 사용자의 house_id 찾기
     const userHouse = await UserHouse.findOne({
       where: { user_id: userId },
       attributes: ["house_id"],
@@ -87,10 +87,11 @@ exports.getMyTasks = async (req, res) => {
       });
     }
 
-    // 해당 house_id의 모든 할일 가져오기
-    const allTasks = await Task.findAll({
+    // 해당 사용자의 할일만 직접 조회
+    const tasks = await Task.findAll({
       where: {
         house_id: userHouse.house_id,
+        user_id: userId, // 할일 등록자 확인
       },
       include: [
         {
@@ -100,11 +101,6 @@ exports.getMyTasks = async (req, res) => {
       ],
       order: [["createdAt", "DESC"]],
     });
-
-    // JavaScript 사용 -> 사용자의 할일 만 필터링..
-    const tasks = allTasks.filter(
-      (task) => task.assignee_id.includes(parseInt(userId)) //문자열 -> 정수반환
-    );
 
     if (tasks.length === 0) {
       return res
@@ -132,7 +128,6 @@ exports.getPastTasks = async (req, res) => {
         .status(400)
         .json({ success: false, error: "사용자 ID가 필요합니다." });
     }
-
     // 사용자의 house_id 찾기
     const userHouse = await UserHouse.findOne({
       where: { user_id: userId },
