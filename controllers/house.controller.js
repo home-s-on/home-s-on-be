@@ -6,15 +6,6 @@ async function createHouseAndUserHouse(userId, inviteCode) {
   const t = await sequelize.transaction();
 
   try {
-    const user = await UserHouse.findOne({ where: { user_id: userId } });
-
-    if (user) {
-      console.log(
-        "집 계정이 이미 등록되어 있습니다.기존 계정을 이용해 주세요."
-      );
-      return null;
-    }
-
     // House 생성
     const house = await House.create(
       {
@@ -48,13 +39,30 @@ houseController.createHouse = async (req, res) => {
   try {
     const { userId } = req;
 
-    const inviteCode = await randomStringGenerator();
-    const house = await createHouseAndUserHouse(userId, inviteCode);
-    if (!house) {
-      return res.status(202).json({
-        message: "집 계정이 이미 등록되어 있습니다.기존 계정을 이용해 주세요.",
+    const existingUserHouse = await UserHouse.findOne({
+      where: { user_id: userId },
+    });
+
+    if (existingUserHouse) {
+      const existingHouse = await House.findOne({
+        where: { id: existingUserHouse.house_id },
+      });
+
+      const user = await User.findOne({ where: { id: userId } });
+
+      return res.status(201).json({
+        status: "success",
+        message: "House already exists, returning existing data.",
+        data: {
+          houseId: existingHouse.id,
+          nickname: user.nickname,
+          inviteCode: existingHouse.invite_code,
+        },
       });
     }
+
+    const inviteCode = await randomStringGenerator();
+    const house = await createHouseAndUserHouse(userId, inviteCode);
     const user = await User.findOne({ where: { id: userId } });
 
     if (!user) {
