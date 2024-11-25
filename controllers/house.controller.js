@@ -6,6 +6,15 @@ async function createHouseAndUserHouse(userId, inviteCode) {
   const t = await sequelize.transaction();
 
   try {
+    const user = await UserHouse.findOne({ where: { user_id: userId } });
+
+    if (user) {
+      console.log(
+        "집 계정이 이미 등록되어 있습니다.기존 계정을 이용해 주세요."
+      );
+      return null;
+    }
+
     // House 생성
     const house = await House.create(
       {
@@ -38,10 +47,14 @@ async function createHouseAndUserHouse(userId, inviteCode) {
 houseController.createHouse = async (req, res) => {
   try {
     const { userId } = req;
-    // console.log(userId);
+
     const inviteCode = await randomStringGenerator();
     const house = await createHouseAndUserHouse(userId, inviteCode);
-
+    if (!house) {
+      return res.status(202).json({
+        message: "집 계정이 이미 등록되어 있습니다.기존 계정을 이용해 주세요.",
+      });
+    }
     const user = await User.findOne({ where: { id: userId } });
 
     if (!user) {
@@ -62,26 +75,32 @@ houseController.createHouse = async (req, res) => {
 };
 
 houseController.getInviteCode = async (req, res) => {
-  const userId = req;
-  // console.log("getInviteCode", userId);
   try {
-    const userHouse = await UserHouse.findOne({ where: { user_id: userId } });
-    if (!userHouse) {
-      return res
-        .status(404)
-        .json({ status: "fail", message: "house not found" });
-    }
+    const { userId } = req;
+    const user = await User.findOne({
+      where: { id: userId },
+    });
+    if (user) {
+      const userHouse = await UserHouse.findOne({
+        where: { user_id: user.id },
+      });
+      if (!userHouse) {
+        return res
+          .status(404)
+          .json({ status: "fail", message: "house not found" });
+      }
 
-    const house = await House.findOne({ where: { id: userHouse.house_id } });
-    if (!house) {
-      return res
-        .status(404)
-        .json({ status: "fail", message: "Invalid invite code" });
-    }
+      const house = await House.findOne({ where: { id: userHouse.house_id } });
+      if (!house) {
+        return res
+          .status(404)
+          .json({ status: "fail", message: "Invalid invite code" });
+      }
 
-    return res
-      .status(201)
-      .json({ status: "success", inviteCode: house.invite_code });
+      return res
+        .status(201)
+        .json({ status: "success", inviteCode: house.invite_code });
+    }
   } catch (e) {
     return res.status(400).json({ status: "fail", message: e.message });
   }
