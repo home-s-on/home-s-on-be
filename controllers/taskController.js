@@ -3,19 +3,25 @@ const { Task, HouseRoom, UserHouse, User } = require("../models");
 //<<모든 할일보기>>
 exports.getAllTasksByHouseId = async (req, res) => {
   try {
-    const houseId = req.params.houseId;
+    const userId = req.userId; // token userId
 
-    //인증 미들웨어 houseId
+    // 사용자의 house_id 찾기
+    const userHouse = await UserHouse.findOne({
+      where: { user_id: userId },
+      attributes: ["house_id"],
+    });
 
-    if (!houseId) {
-      return res
-        .status(400)
-        .json({ success: false, error: "House ID가 필요합니다" });
+    if (!userHouse) {
+      return res.status(404).json({
+        success: false,
+        error:
+          "사용자의 집을 찾을 수 없습니다. 사용자가 집에 등록되어있는지 확인해주세요.",
+      });
     }
 
     const tasks = await Task.findAll({
       where: {
-        house_id: houseId,
+        house_id: userHouse.house_id, // 파라미터 대신 조회한 house_id 사용
       },
       include: [
         {
@@ -65,7 +71,7 @@ exports.getAllTasksByHouseId = async (req, res) => {
 // <<나의 할일 보기>>
 exports.getMyTasks = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.userId;
 
     if (!userId) {
       return res
@@ -127,7 +133,7 @@ exports.getMyTasks = async (req, res) => {
 // <<지난 할일 보기>>
 exports.getPastTasks = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.userId;
 
     if (!userId) {
       return res
@@ -190,10 +196,7 @@ exports.getPastTasks = async (req, res) => {
 //<<할일 추가>>
 exports.addTask = async (req, res) => {
   try {
-    const userId = req.params.userId;
-
-    // 인증 미들웨어 사용자 ID
-    //const userId = req.user.id;
+    const userId = req.userId;
 
     const { house_room_id, title, memo, alarm, assignee_id, due_date } =
       req.body;
