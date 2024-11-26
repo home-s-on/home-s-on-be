@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     async generateToken() {
       const token = jwt.sign({ id: this.id }, JWT_SECRET_KEY, {
-        expiresIn: "1d",
+        expiresIn: "30d",
       });
       return token;
     }
