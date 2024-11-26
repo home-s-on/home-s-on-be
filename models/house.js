@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
       },
       invite_code: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
       },
     },

@@ -16,11 +16,9 @@ module.exports = {
       },
       nickname: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
-      profile_img_url: {
+      photo: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
       social_login_type: {
         type: Sequelize.STRING,
@@ -29,14 +27,6 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
         allowNull: false,
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
       },
     });
   },
