@@ -91,12 +91,18 @@ exports.getMyTasks = async (req, res) => {
     const tasks = await Task.findAll({
       where: {
         house_id: userHouse.house_id,
-        user_id: userId, // 할일 등록자 확인
+        user_id: userId,
       },
       include: [
         {
           model: HouseRoom,
           attributes: ["id", "room_name"],
+        },
+        {
+          model: User,
+          as: "assignees",
+          attributes: ["id", "nickname"],
+          through: { attributes: [] },
         },
       ],
       order: [["createdAt", "DESC"]],

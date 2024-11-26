@@ -22,10 +22,17 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "house_room_id",
         targetKey: "id",
       });
-      //user_id 추가
+      //user_id
       Task.belongsTo(models.User, {
         foreignKey: "user_id",
         targetKey: "id",
+      });
+      // 담당자
+      Task.belongsToMany(models.User, {
+        through: "TaskAssignees",
+        as: "assignees",
+        foreignKey: "task_id",
+        otherKey: "user_id",
       });
     }
   }
