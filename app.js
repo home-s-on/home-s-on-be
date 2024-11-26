@@ -2,15 +2,19 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const indexRouter = require("./routers/index");
+const taskRoutes = require("./routers/taskRouter");
+
 const app = express();
 require("dotenv").config();
 const models = require("./models");
+
 const PORT = process.env.PORT || 5001;
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+app.use("/api/tasks", taskRoutes);
 app.use("/api", indexRouter);
 
 app.listen(PORT, () => {
