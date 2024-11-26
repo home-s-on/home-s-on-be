@@ -1,16 +1,29 @@
 const express = require("express");
 const router = express.Router();
 const taskController = require("../controllers/taskController");
+const authController = require("../controllers/auth.controller");
 
 //사용자 집의 모든 할 일
-router.get("/house/:houseId", taskController.getAllTasksByHouseId);
+router.get(
+  "/house",
+  authController.authenticate,
+  taskController.getAllTasksByHouseId
+);
 //나의 할 일
-router.get("/mytasks/:userId", taskController.getMyTasks);
+router.get("/mytasks", authController.authenticate, taskController.getMyTasks);
 //지난 할 일
-router.get("/pasttasks/:userId", taskController.getPastTasks);
+router.get(
+  "/pasttasks",
+  authController.authenticate,
+  taskController.getPastTasks
+);
 //할 일 추가
-router.post("/add/:userId", taskController.addTask);
+router.post("/add", authController.authenticate, taskController.addTask);
 //할 일 삭제
-router.delete("/delete/:userId/:taskId", taskController.deleteTask);
+router.delete(
+  "/delete/:taskId",
+  authController.authenticate,
+  taskController.deleteTask
+);
 
 module.exports = router;

@@ -25,15 +25,7 @@ module.exports = {
           key: "id",
         },
       },
-      house_room_id: {
-        // 추가
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "houserooms",
-          key: "id",
-        },
-      },
+
       title: {
         type: Sequelize.STRING,
         allowNull: false,
