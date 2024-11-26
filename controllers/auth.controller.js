@@ -9,13 +9,14 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const { ClientBase } = require("pg");
-const { randomStringGenerator } = require("../utils/randomStringGenerator");
 const appleSignin = require("apple-signin-auth");
+const axios = require("axios");
 const { createPassword } = require("../utils/createPassword");
 require("dotenv").config();
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const APPLE_AUDIENCE = process.env.APPLE_AUDIENCE;
 
 const authController = {};
 
@@ -69,7 +70,7 @@ authController.loginWithApple = async (req, res) => {
     const { sub: userAppleId } = await appleSignin.verifyIdToken(
       authorization.id_token,
       {
-        audience: "kr.or.womanup.nambu.song.SocialLoginTest",
+        audience: APPLE_AUDIENCE,
         ignoreExpiration: true,
       }
     );
@@ -83,6 +84,37 @@ authController.loginWithApple = async (req, res) => {
         email: userAppleId,
         password: newPassword,
         social_login_type: "APPLE",
+      });
+    }
+
+    const sessionToken = await user.generateToken();
+    return res
+      .status(200)
+      .json({ status: "success", data: { user, token: sessionToken } });
+  } catch (e) {
+    return res.status(400).json({ status: "fail", message: e.message });
+  }
+};
+
+authController.loginWithKakao = async (req, res) => {
+  try {
+    const { token } = req.body;
+    const response = await axios.get("https://kapi.kakao.com/v2/user/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const kakaoEmail = response.data.kakao_account.email;
+
+    let user = await User.findOne({
+      where: { email: kakaoEmail, social_login_type: "KAKAO" },
+    });
+    if (!user) {
+      const newPassword = await createPassword();
+      user = await User.create({
+        email: kakaoEmail,
+        password: newPassword,
+        social_login_type: "KAKAO",
       });
     }
 
