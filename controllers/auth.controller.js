@@ -10,6 +10,8 @@ const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const { ClientBase } = require("pg");
 const { randomStringGenerator } = require("../utils/randomStringGenerator");
+const appleSignin = require("apple-signin-auth");
+const { createPassword } = require("../utils/createPassword");
 require("dotenv").config();
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
@@ -60,6 +62,39 @@ authController.loginWithEmail = async (req, res) => {
   }
 };
 
+authController.loginWithApple = async (req, res) => {
+  try {
+    const { authorization } = req.body;
+
+    const { sub: userAppleId } = await appleSignin.verifyIdToken(
+      authorization.id_token,
+      {
+        audience: "kr.or.womanup.nambu.song.SocialLoginTest",
+        ignoreExpiration: true,
+      }
+    );
+
+    let user = await User.findOne({
+      where: { email: userAppleId, social_login_type: "APPLE" },
+    });
+    if (!user) {
+      const newPassword = await createPassword();
+      user = await User.create({
+        email: userAppleId,
+        password: newPassword,
+        social_login_type: "APPLE",
+      });
+    }
+
+    const sessionToken = await user.generateToken();
+    return res
+      .status(200)
+      .json({ status: "success", data: { user, token: sessionToken } });
+  } catch (e) {
+    return res.status(400).json({ status: "fail", message: e.message });
+  }
+};
+
 authController.loginWithGoogle = async (req, res) => {
   try {
     const { token } = req.body;
@@ -71,12 +106,12 @@ authController.loginWithGoogle = async (req, res) => {
     });
     const { email, name } = ticket.getPayload();
 
-    let user = await User.findOne({ where: { account_id: email } });
+    let user = await User.findOne({
+      where: { id: email, social_login_type: "GOOGLE" },
+    });
     if (!user) {
       // 처음 로그인 시도한 유저면 유저정보 새로 생성 후 토큰 값 주기
-      const randomPassword = "" + Math.floor(Math.random() * 10000000);
-      const salt = await bcrypt.genSalt(10);
-      const newPassword = await bcrypt.hash(randomPassword, salt);
+      const newPassword = await createPassword();
       user = await User.create({
         email,
         password: newPassword,
