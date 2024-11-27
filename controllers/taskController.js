@@ -21,7 +21,7 @@ exports.getAllTasksByHouseId = async (req, res) => {
 
     const tasks = await Task.findAll({
       where: {
-        house_id: userHouse.house_id, // 파라미터 대신 조회한 house_id 사용
+        house_id: userHouse.house_id,
       },
       include: [
         {
@@ -45,13 +45,13 @@ exports.getAllTasksByHouseId = async (req, res) => {
         const taskJson = task.toJSON();
         const assignees = await UserHouse.findAll({
           where: {
-            house_id: houseId,
-            user_id: taskJson.assignee_id, // assignee_id 배열
+            house_id: userHouse.house_id, // houseId를 userHouse.house_id로 수정
+            user_id: taskJson.assignee_id,
           },
           include: [
             {
               model: User,
-              attributes: ["id", "nickname", "profile_img_url"],
+              attributes: ["id", "nickname"],
             },
           ],
         });
@@ -246,7 +246,7 @@ exports.addTask = async (req, res) => {
         },
         {
           model: User,
-          attributes: ["id", "nickname", "profile_img_url"],
+          attributes: ["id", "nickname"],
         },
       ],
     });
@@ -264,7 +264,7 @@ exports.addTask = async (req, res) => {
 //<<할일 삭제>>
 exports.deleteTask = async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = req.userId;
     const taskId = parseInt(req.params.taskId);
 
     const task = await Task.findOne({
