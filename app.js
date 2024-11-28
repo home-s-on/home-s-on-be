@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const indexRouter = require("./routers/index");
 const taskRoutes = require("./routers/taskRouter");
+const houseRoomRouter = require("./routers/houseroomRouter");
 
 const app = express();
 require("dotenv").config();
@@ -16,6 +17,7 @@ app.use(bodyParser.json());
 
 app.use("/api/tasks", taskRoutes);
 app.use("/api", indexRouter);
+app.use("/api/rooms", houseRoomRouter);
 
 app.listen(PORT, () => {
   models.sequelize
