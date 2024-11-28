@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       members_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
         allowNull: false,
       },
       house_id: {

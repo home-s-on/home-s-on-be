@@ -114,4 +114,29 @@ houseController.getInviteCode = async (req, res) => {
   }
 };
 
+houseController.joinToHouse = async (req, res) => {
+  try {
+    const { userId } = req;
+    const { inviteCode } = req.body;
+    const house = await House.findOne({ where: { invite_code: inviteCode } });
+    if (!house) {
+      return res
+        .status(400)
+        .json({ status: "fail", message: "유효하지 않은 코드 입니다." });
+    }
+    let joinHouse = await UserHouse.create({
+      house_id: house.id,
+      user_id: userId,
+      is_owner: false,
+    });
+    return res.status(200).json({
+      status: "success",
+      message: "초대코드를 통해 입장되었습니다.",
+      data: joinHouse,
+    });
+  } catch (e) {
+    return res.status(400).json({ status: "fail", message: e.message });
+  }
+};
+
 module.exports = houseController;
