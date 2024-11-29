@@ -38,7 +38,6 @@ module.exports = {
       },
       assignee_id: {
         type: Sequelize.ARRAY(Sequelize.INTEGER),
-        allowNull: false,
       },
       due_date: {
         type: Sequelize.DATE,

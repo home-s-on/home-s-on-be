@@ -69,7 +69,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       assignee_id: {
         type: DataTypes.ARRAY(DataTypes.INTEGER),
-        allowNull: false,
       },
       due_date: {
         type: DataTypes.DATE,
