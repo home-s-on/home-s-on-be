@@ -39,20 +39,16 @@ houseController.createHouse = async (req, res) => {
   try {
     const { userId } = req;
 
-    const existingUserHouse = await UserHouse.findOne({
-      where: { user_id: userId },
+    const existingHouse = await House.findOne({
+      where: { id: userId },
     });
 
-    if (existingUserHouse) {
-      const existingHouse = await House.findOne({
-        where: { id: existingUserHouse.house_id },
-      });
-
+    if (existingHouse) {
       const user = await User.findOne({ where: { id: userId } });
 
       return res.status(201).json({
         status: "success",
-        message: "House already exists, returning existing data.",
+        message: "기존에 생성되었던 house 데이터를 반환합니다.",
         data: {
           houseId: existingHouse.id,
           nickname: user.nickname,
