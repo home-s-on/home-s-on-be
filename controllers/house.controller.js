@@ -114,17 +114,37 @@ houseController.joinToHouse = async (req, res) => {
   try {
     const { userId } = req;
     const { inviteCode } = req.body;
+
     const house = await House.findOne({ where: { invite_code: inviteCode } });
     if (!house) {
       return res
         .status(400)
         .json({ status: "fail", message: "유효하지 않은 코드 입니다." });
     }
+
+    // 이미 가입된 집 정보 확인
+    const existingUserHouse = await UserHouse.findOne({
+      where: {
+        house_id: house.id,
+        user_id: userId,
+      },
+    });
+
+    if (existingUserHouse) {
+      return res.status(200).json({
+        status: "success",
+        message: "이미 이 집에 가입되어 있습니다.",
+        data: existingUserHouse,
+      });
+    }
+
+    // 새로운 집 가입
     let joinHouse = await UserHouse.create({
       house_id: house.id,
       user_id: userId,
       is_owner: false,
     });
+    console.log("joinHouse", joinHouse);
     return res.status(200).json({
       status: "success",
       message: "초대코드를 통해 입장되었습니다.",
