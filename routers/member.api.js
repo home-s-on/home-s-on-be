@@ -4,9 +4,9 @@ const memberController = require("../controllers/member.controller");
 const authController = require("../controllers/auth.controller");
 
 router.post(
-  "/create/:houseId",
+  "/join/:houseId",
   authController.authenticate,
-  memberController.createMember
+  memberController.joinToMember
 );
 
 module.exports = router;
