@@ -8,5 +8,6 @@ router.use(authController.authenticate);
 router.post("/create", houseController.createHouse);
 router.get("/getInviteCode", houseController.getInviteCode);
 router.post("/join", houseController.joinToHouse);
+router.post("/gethouseId", houseController.getHouseId);
 
 module.exports = router;

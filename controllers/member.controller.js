@@ -2,7 +2,7 @@ const { Member } = require("../models");
 
 const memberController = {};
 
-memberController.createMember = async (req, res) => {
+memberController.joinToMember = async (req, res) => {
   try {
     const { userId } = req;
     const houseId = parseInt(req.params.houseId);

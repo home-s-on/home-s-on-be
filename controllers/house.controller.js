@@ -155,4 +155,21 @@ houseController.joinToHouse = async (req, res) => {
   }
 };
 
+houseController.getHouseId = async (req, res) => {
+  try {
+    const { inviteCode } = req.body;
+
+    const findHouse = await House.findOne({
+      where: { invite_code: inviteCode },
+    });
+    return res.status(200).json({
+      status: "success",
+      message: "초대코드에 해당하는 houseId를 찾았습니다.",
+      data: findHouse,
+    });
+  } catch (e) {
+    return res.status(400).json({ status: "fail", message: e.message });
+  }
+};
+
 module.exports = houseController;
