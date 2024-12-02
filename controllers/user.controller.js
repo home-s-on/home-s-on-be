@@ -83,4 +83,23 @@ userController.updateUser = async (req, res) => {
   }
 };
 
+userController.updateDeviceToekn = async (req, res) => {
+  try {
+    const { userId } = req;
+    const { deviceToken } = req.body;
+
+    const user = await User.findOne({ where: { id: userId } });
+    await user.addDeviceToken(deviceToken);
+    return res
+      .status(200)
+      .json({
+        status: "success",
+        message: "디바이스 토큰이 성공적으로 업데이트 되었습니다.",
+        data: user,
+      });
+  } catch (e) {
+    return res.status(400).json({ status: "fail", message: e.message });
+  }
+};
+
 module.exports = userController;
