@@ -43,9 +43,8 @@ authController.authenticate = async (req, res, next) => {
 authController.loginWithEmail = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const social_login_type = "EMAIL";
 
-    let user = await User.findOne({ where: { email, social_login_type } });
+    let user = await User.findOne({ where: { email } });
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
@@ -76,14 +75,13 @@ authController.loginWithApple = async (req, res) => {
     );
 
     let user = await User.findOne({
-      where: { email: userAppleId, social_login_type: "APPLE" },
+      where: { apple: userAppleId },
     });
     if (!user) {
       const newPassword = await createPassword();
       user = await User.create({
-        email: userAppleId,
+        apple: userAppleId,
         password: newPassword,
-        social_login_type: "APPLE",
       });
     }
 
@@ -107,14 +105,13 @@ authController.loginWithKakao = async (req, res) => {
     const kakaoEmail = response.data.kakao_account.email;
 
     let user = await User.findOne({
-      where: { email: kakaoEmail, social_login_type: "KAKAO" },
+      where: { kakao: kakaoEmail },
     });
     if (!user) {
       const newPassword = await createPassword();
       user = await User.create({
-        email: kakaoEmail,
+        kakao: kakaoEmail,
         password: newPassword,
-        social_login_type: "KAKAO",
       });
     }
 

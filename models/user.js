@@ -40,10 +40,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
       },
       photo: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
+        type: DataTypes.STRING,
       },
       deviceToken: {
-        type: DataTypes.STRING,
+        type: DataTypes.ARRAY(DataTypes.STRING),
       },
       kakao: {
         type: DataTypes.STRING,

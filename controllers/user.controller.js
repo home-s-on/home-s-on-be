@@ -12,7 +12,7 @@ userController.createUser = async (req, res) => {
     }
 
     const user = await User.findOne({
-      where: { email, social_login_type: "EMAIL" },
+      where: { email },
     });
     if (user) {
       throw new Error("동일한 이메일로 가입되어 있는 계정이 있습니다.");
@@ -22,7 +22,6 @@ userController.createUser = async (req, res) => {
     await User.create({
       email,
       password,
-      social_login_type: "EMAIL",
     });
 
     return res.status(201).json({ status: "success" });
@@ -62,10 +61,12 @@ userController.updateUser = async (req, res) => {
       });
     }
 
+    console.log(newProfile);
     const [updatedRows] = await User.update(newProfile, {
       where: { id: userId },
     });
 
+    console.log(updatedRows);
     if (updatedRows) {
       const updatedUser = await User.findOne({ where: { id: userId } });
       return res.status(200).json({
