@@ -20,13 +20,18 @@ module.exports = {
       photo: {
         type: Sequelize.STRING,
       },
-      social_login_type: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       password: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      deviceToken: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
+      },
+      kakao: {
+        type: Sequelize.STRING,
+      },
+      apple: {
+        type: Sequelize.STRING,
       },
     });
   },

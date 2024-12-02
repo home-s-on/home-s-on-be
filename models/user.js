@@ -40,11 +40,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
       },
       photo: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+      },
+      deviceToken: {
         type: DataTypes.STRING,
       },
-      social_login_type: {
-        type: DataTypes.ENUM("EMAIL", "KAKAO", "GOOGLE", "APPLE"),
-        allowNull: false,
+      kakao: {
+        type: DataTypes.STRING,
+      },
+      apple: {
+        type: DataTypes.STRING,
       },
     },
     {
