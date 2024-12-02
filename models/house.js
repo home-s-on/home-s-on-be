@@ -18,11 +18,6 @@ module.exports = (sequelize, DataTypes) => {
         sourceKey: "id",
       });
 
-      House.hasMany(models.UserHouse, {
-        foreignKey: "house_id",
-        sourceKey: "id",
-      });
-
       House.hasMany(models.Task, {
         foreignKey: "house_id",
         sourceKey: "id",
