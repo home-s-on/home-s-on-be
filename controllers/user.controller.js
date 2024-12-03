@@ -1,5 +1,6 @@
-const { User } = require("../models");
+const { User, UserHouse, Member } = require("../models");
 const bcrypt = require("bcryptjs");
+const { Op } = require("sequelize");
 
 const userController = {};
 
@@ -90,13 +91,45 @@ userController.updateDeviceToekn = async (req, res) => {
 
     const user = await User.findOne({ where: { id: userId } });
     await user.addDeviceToken(deviceToken);
-    return res
-      .status(200)
-      .json({
-        status: "success",
-        message: "디바이스 토큰이 성공적으로 업데이트 되었습니다.",
-        data: user,
-      });
+    return res.status(200).json({
+      status: "success",
+      message: "디바이스 토큰이 성공적으로 업데이트 되었습니다.",
+      data: user,
+    });
+  } catch (e) {
+    return res.status(400).json({ status: "fail", message: e.message });
+  }
+};
+
+userController.accountBasedEntry = async (req, res) => {
+  try {
+    const { userId } = req;
+
+    const existingUserHouse = await UserHouse.findOne({
+      where: { user_id: userId },
+    });
+    if (!existingUserHouse) {
+      return res
+        .status(200)
+        .json({ status: "success", message: "profile 설정으로 진입합니다." });
+    }
+    const existingMembers = await Member.findOne({
+      where: {
+        members_id: {
+          [Op.contains]: [userId],
+        },
+      },
+    });
+
+    if (existingMembers) {
+      return res
+        .status(200)
+        .json({ status: "success", message: "main 뷰로 진입합니다." });
+    } else {
+      return res
+        .status(200)
+        .json({ status: "success", message: "entry 뷰로 진입합니다" });
+    }
   } catch (e) {
     return res.status(400).json({ status: "fail", message: e.message });
   }
