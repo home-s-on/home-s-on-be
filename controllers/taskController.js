@@ -155,6 +155,7 @@ exports.getPastTasks = async (req, res) => {
     }
 
     const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // 현재 날짜의 시간을 00:00:00으로 설정
 
     // 해당 house_id의 모든 할일
     const allTasks = await Task.findAll({
@@ -171,11 +172,13 @@ exports.getPastTasks = async (req, res) => {
     });
 
     // 지난 할일 필터링
-    const pastTasks = allTasks.filter(
-      (task) =>
-        new Date(task.due_date) < currentDate &&
-        task.assignee_id.includes(parseInt(userId))
-    );
+    const pastTasks = allTasks.filter((task) => {
+      const taskDueDate = new Date(task.due_date);
+      taskDueDate.setHours(0, 0, 0, 0); // 작업 마감일 00:00:00으로 설정
+      return (
+        taskDueDate < currentDate && task.assignee_id.includes(parseInt(userId))
+      );
+    });
 
     if (pastTasks.length === 0) {
       return res
@@ -193,15 +196,28 @@ exports.getPastTasks = async (req, res) => {
   }
 };
 
+// 같은 집 구성원 조회
+const getHouseMembers = async (houseId) => {
+  const members = await UserHouse.findAll({
+    where: { house_id: houseId },
+    include: [
+      {
+        model: User,
+        attributes: ["id", "nickname"],
+      },
+    ],
+  });
+  return members;
+};
+
 //<<할일 추가>>
 exports.addTask = async (req, res) => {
   try {
     const userId = req.userId;
-
     const { house_room_id, title, memo, alarm, assignee_id, due_date } =
       req.body;
 
-    // 필수 정보
+    // 필수 정보 검증
     if (!house_room_id || !title || !assignee_id) {
       return res.status(400).json({
         success: false,
@@ -223,7 +239,19 @@ exports.addTask = async (req, res) => {
       });
     }
 
-    //새 할일 생성
+    // 담당자-> 같은 집 구성원인지 확인
+    const houseMembers = await getHouseMembers(userHouse.house_id);
+    const memberIds = houseMembers.map((member) => member.User.id);
+
+    const validAssignees = assignee_id.every((id) => memberIds.includes(id));
+    if (!validAssignees) {
+      return res.status(400).json({
+        success: false,
+        error: "유효하지 않은 담당자가 포함되어 있습니다.",
+      });
+    }
+
+    // 새 할일 생성
     const newTask = await Task.create({
       house_id: userHouse.house_id,
       house_room_id,
@@ -232,11 +260,11 @@ exports.addTask = async (req, res) => {
       alarm,
       assignee_id,
       due_date,
-      complete: false, // 기본 false , 완료 true
+      complete: false,
       user_id: userId,
     });
 
-    //생성한 새 할 일 정보 조회
+    // 생성된 할일 조회
     const createdTask = await Task.findOne({
       where: { id: newTask.id },
       include: [
