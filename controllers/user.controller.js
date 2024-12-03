@@ -88,6 +88,7 @@ userController.updateDeviceToekn = async (req, res) => {
   try {
     const { userId } = req;
     const { deviceToken } = req.body;
+    console.log("deviceToken", deviceToken);
 
     const user = await User.findOne({ where: { id: userId } });
     await user.addDeviceToken(deviceToken);
@@ -111,7 +112,7 @@ userController.accountBasedEntry = async (req, res) => {
     if (!existingUserHouse) {
       return res
         .status(200)
-        .json({ status: "success", message: "profile 설정으로 진입합니다." });
+        .json({ status: "success", message: "profile 뷰로 진입합니다." });
     }
     const existingMembers = await Member.findOne({
       where: {
@@ -122,13 +123,15 @@ userController.accountBasedEntry = async (req, res) => {
     });
 
     if (existingMembers) {
-      return res
-        .status(200)
-        .json({ status: "success", message: "main 뷰로 진입합니다." });
+      return res.status(200).json({
+        status: "success",
+        message: "main 뷰로 진입합니다.",
+        data: existingMembers,
+      });
     } else {
       return res
         .status(200)
-        .json({ status: "success", message: "entry 뷰로 진입합니다" });
+        .json({ status: "success", message: "entry 뷰로 진입합니다." });
     }
   } catch (e) {
     return res.status(400).json({ status: "fail", message: e.message });
