@@ -18,5 +18,6 @@ router.post(
   authController.authenticate,
   userController.updateDeviceToekn
 );
+router.get("/", authController.authenticate, userController.accountBasedEntry);
 
 module.exports = router;
