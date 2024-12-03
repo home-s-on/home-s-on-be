@@ -24,6 +24,9 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      deviceToken: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
+      },
       password: {
         type: Sequelize.STRING,
         allowNull: false,

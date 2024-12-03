@@ -13,6 +13,19 @@ module.exports = (sequelize, DataTypes) => {
       return token;
     }
 
+    // 디바이스 토큰을 추가하는 메서드
+    async addDeviceToken(newToken) {
+      if (!this.deviceToken) {
+        this.deviceToken = [];
+      }
+
+      // 중복 체크
+      if (!this.deviceToken.includes(newToken)) {
+        this.deviceToken.push(newToken);
+        await this.save(); // 변경 사항 저장
+      }
+    }
+
     static associate(models) {
       User.hasOne(models.UserHouse, {
         foreignKey: "user_id",
@@ -41,6 +54,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       photo: {
         type: DataTypes.STRING,
+      },
+      deviceToken: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
       },
       social_login_type: {
         type: DataTypes.ENUM("EMAIL", "KAKAO", "GOOGLE", "APPLE"),

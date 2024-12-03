@@ -13,5 +13,10 @@ router.put(
   upload.single("photo"),
   userController.updateUser
 );
+router.post(
+  "/update-device-token",
+  authController.authenticate,
+  userController.updateDeviceToekn
+);
 
 module.exports = router;
