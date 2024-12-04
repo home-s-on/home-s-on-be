@@ -34,7 +34,10 @@ module.exports = {
         type: Sequelize.TEXT,
       },
       alarm: {
-        type: Sequelize.TIME,
+        type: Sequelize.BOOLEAN,
+      },
+      repeat_day: {
+        type: Sequelize.ARRAY(DataTypes.INTEGER),
       },
       assignee_id: {
         type: Sequelize.ARRAY(Sequelize.INTEGER),
