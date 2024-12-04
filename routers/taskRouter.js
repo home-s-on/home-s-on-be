@@ -16,11 +16,7 @@ router.get(
 //할 일 추가
 router.post("/add", authController.authenticate, taskController.addTask);
 //할 일 편집
-router.patch(
-  "/tasks/:taskId",
-  authController.authenticate,
-  taskController.editTask
-);
+router.patch("/:taskId", authController.authenticate, taskController.editTask);
 // router.put(
 //   "/edit/:taskId",
 //   authController.authenticate,

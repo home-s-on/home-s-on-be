@@ -323,8 +323,8 @@ exports.addTask = async (req, res) => {
 exports.editTask = async (req, res) => {
   try {
     const userId = req.userId;
-    const taskId = req.params.taskId;
-    const houseId = req.query.house_id;
+    const taskId = parseInt(req.params.taskId);
+    // const houseId = req.query.house_id;
     const { house_room_id, title, memo, alarm, assignee_id, due_date } =
       req.body;
 
@@ -332,7 +332,7 @@ exports.editTask = async (req, res) => {
     const task = await Task.findOne({
       where: {
         id: taskId,
-        house_id: houseId,
+        // house_id: houseId,
       },
     });
 
