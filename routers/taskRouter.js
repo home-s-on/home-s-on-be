@@ -4,11 +4,7 @@ const taskController = require("../controllers/taskController");
 const authController = require("../controllers/auth.controller");
 
 //사용자 집의 모든 할 일
-router.get(
-  "/house",
-  authController.authenticate,
-  taskController.getAllTasksByHouseId
-);
+router.get("/house", authController.authenticate, taskController.getAllTasks);
 //나의 할 일
 router.get("/mytasks", authController.authenticate, taskController.getMyTasks);
 //지난 할 일
@@ -19,6 +15,18 @@ router.get(
 );
 //할 일 추가
 router.post("/add", authController.authenticate, taskController.addTask);
+//할 일 편집
+router.patch(
+  "/tasks/:taskId",
+  authController.authenticate,
+  taskController.editTask
+);
+// router.put(
+//   "/edit/:taskId",
+//   authController.authenticate,
+//   taskController.editTask
+// );
+
 //할 일 삭제
 router.delete(
   "/delete/:taskId",
