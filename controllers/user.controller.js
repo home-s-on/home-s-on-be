@@ -1,4 +1,4 @@
-const { User, UserHouse, Member } = require("../models");
+const { User, UserHouse, Member, House } = require("../models");
 const bcrypt = require("bcryptjs");
 const { Op } = require("sequelize");
 
@@ -114,12 +114,19 @@ userController.accountBasedEntry = async (req, res) => {
         .status(200)
         .json({ status: "success", message: "profile 뷰로 진입합니다." });
     }
+
     const existingMembers = await Member.findOne({
       where: {
         members_id: {
           [Op.contains]: [userId],
         },
       },
+      include: [
+        {
+          model: House,
+          attributes: ["invite_code"],
+        },
+      ],
     });
 
     if (existingMembers) {
