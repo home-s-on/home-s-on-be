@@ -4,7 +4,11 @@ const taskController = require("../controllers/taskController");
 const authController = require("../controllers/auth.controller");
 
 //사용자 집의 모든 할 일
-router.get("/house", authController.authenticate, taskController.getAllTasks);
+router.get(
+  "/house",
+  authController.authenticate,
+  taskController.getAllTasksByHouseId
+);
 //나의 할 일
 router.get("/mytasks", authController.authenticate, taskController.getMyTasks);
 //지난 할 일

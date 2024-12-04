@@ -1,58 +1,52 @@
 const { Task, HouseRoom, UserHouse, User } = require("../models");
 
 //<<모든 할일보기>>
-exports.getAllTasks = async (req, res) => {
+exports.getAllTasksByHouseId = async (req, res) => {
   try {
-    const userId = req.userId;
-    const houseId = req.query.house_id;
+    const userId = req.userId; // token userId
 
-    if (!houseId) {
-      return res.status(400).json({
-        success: false,
-        error: "house_id가 필요합니다.",
-      });
-    }
-
-    // UserHouse를 통한 권한 검증
+    // 사용자의 house_id 찾기
     const userHouse = await UserHouse.findOne({
-      where: {
-        user_id: userId,
-        house_id: houseId,
-      },
+      where: { user_id: userId },
+      attributes: ["house_id"],
     });
 
     if (!userHouse) {
-      return res.status(403).json({
+      return res.status(404).json({
         success: false,
-        error: "해당 집에 대한 접근 권한이 없습니다.",
+        error:
+          "사용자의 집을 찾을 수 없습니다. 사용자가 집에 등록되어있는지 확인해주세요.",
       });
     }
 
-    // 현재 선택된 house의 할일만 조회
     const tasks = await Task.findAll({
       where: {
-        house_id: houseId,
+        house_id: userHouse.house_id,
       },
       include: [
         {
           model: HouseRoom,
-          required: true, // INNER JOIN 사용
-          where: {
-            house_id: houseId,
-          },
+          attributes: ["id", "room_name"],
         },
       ],
       order: [["createdAt", "DESC"]],
     });
 
-    // 담당자 정보 조회
+    if (tasks.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "등록된 할일이 없습니다. 새로운 할 일을 추가해보세요",
+      });
+    }
+
+    // 각 task의 assignee 정보
     const tasksWithAssignees = await Promise.all(
       tasks.map(async (task) => {
         const taskJson = task.toJSON();
         const assignees = await UserHouse.findAll({
           where: {
+            house_id: userHouse.house_id, // houseId를 userHouse.house_id로 수정
             user_id: taskJson.assignee_id,
-            house_id: houseId,
           },
           include: [
             {
@@ -62,28 +56,15 @@ exports.getAllTasks = async (req, res) => {
           ],
         });
 
-        taskJson.assignees = assignees
-          .filter((assignee) => assignee.User)
-          .map((assignee) => ({
-            userId: assignee.User.id,
-            nickname: assignee.User.nickname,
-            isOwner: assignee.is_owner,
-          }));
-
+        taskJson.assignees = assignees.map((assignee) => assignee.User);
         return taskJson;
       })
     );
 
-    res.json({
-      success: true,
-      data: tasksWithAssignees,
-    });
+    res.json({ success: true, data: tasksWithAssignees });
   } catch (error) {
     console.error("할일 목록을 가져올 수 없습니다:", error);
-    res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
+    res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
 
@@ -233,74 +214,52 @@ const getHouseMembers = async (houseId) => {
 exports.addTask = async (req, res) => {
   try {
     const userId = req.userId;
-    const houseId = req.query.house_id; // URL 쿼리에서 house_id 가져오기
+
     const { house_room_id, title, memo, alarm, assignee_id, due_date } =
       req.body;
 
-    // house_id 검증 추가
-    if (!houseId) {
-      return res.status(400).json({
-        success: false,
-        error: "house_id가 필요합니다.",
-      });
-    }
-
-    // 필수 정보 검증
+    // 필수 정보
     if (!house_room_id || !title || !assignee_id) {
       return res.status(400).json({
         success: false,
-        error: "필수 정보 누락!",
+        error: "필수 정보 누락 !",
       });
     }
 
-    // 현재 선택된 집에 대한 사용자 권한 확인
+    // 사용자의 house_id 찾기
     const userHouse = await UserHouse.findOne({
-      where: {
-        user_id: userId,
-        house_id: houseId,
-      },
+      where: { user_id: userId },
+      attributes: ["house_id"],
     });
 
     if (!userHouse) {
-      return res.status(403).json({
+      return res.status(404).json({
         success: false,
-        error: "해당 집에 대한 접근 권한이 없습니다.",
+        error:
+          "사용자의 집을 찾을 수 없습니다. 사용자가 집에 등록되어 있는지 확인해주세요.",
       });
     }
 
-    // 담당자가 같은 집 구성원인지 확인
-    const houseMembers = await getHouseMembers(houseId);
-    const memberIds = houseMembers.map((member) => member.User.id);
-
-    const validAssignees = assignee_id.every((id) => memberIds.includes(id));
-    if (!validAssignees) {
-      return res.status(400).json({
-        success: false,
-        error: "유효하지 않은 담당자가 포함되어 있습니다.",
-      });
-    }
-
-    // 새 할일 생성 시 URL의 house_id 사용
+    //새 할일 생성
     const newTask = await Task.create({
-      house_id: houseId,
+      house_id: userHouse.house_id,
       house_room_id,
       title,
       memo,
       alarm,
       assignee_id,
       due_date,
-      complete: false,
+      complete: false, // 기본 false , 완료 true
       user_id: userId,
     });
 
-    // 생성된 할일 조회
+    //생성한 새 할 일 정보 조회
     const createdTask = await Task.findOne({
       where: { id: newTask.id },
       include: [
         {
           model: HouseRoom,
           attributes: ["id", "room_name"],
-          where: { house_id: houseId }, // house_id 조건 추가
         },
         {
           model: User,
