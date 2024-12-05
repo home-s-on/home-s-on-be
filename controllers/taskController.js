@@ -33,10 +33,7 @@ exports.getAllTasksByHouseId = async (req, res) => {
     });
 
     if (tasks.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: "등록된 할일이 없습니다. 새로운 할 일을 추가해보세요",
-      });
+      return res.status(200).json({ success: true, data: [] }); // 빈 배열 반환
     }
 
     // 각 task의 assignee 정보
@@ -115,9 +112,7 @@ exports.getMyTasks = async (req, res) => {
     });
 
     if (tasks.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, error: "사용자의 할일 목록이 비어있습니다." });
+      return res.status(200).json({ success: true, data: [] }); // 빈 배열 반환
     }
 
     res.json({ success: true, data: tasks });
