@@ -5,20 +5,16 @@ exports.getHouseRooms = async (req, res) => {
   try {
     const userId = req.userId;
 
-    console.log("userId:", userId);
-
     const userHouse = await UserHouse.findOne({
       where: { user_id: userId },
       attributes: ["house_id"],
     });
-    console.log("userHouse:", userHouse);
 
     let houseRooms = await HouseRoom.findAll({
       where: { house_id: userHouse.house_id },
       attributes: ["id", "house_id", "room_name"],
       order: [["createdAt", "ASC"]],
     });
-    console.log("houseRooms:", houseRooms);
 
     // 구역이 없으면 기본 구역 자동 생성
     if (houseRooms.length === 0) {
@@ -28,7 +24,6 @@ exports.getHouseRooms = async (req, res) => {
         { house_id: userHouse.house_id, room_name: "화장실" },
         { house_id: userHouse.house_id, room_name: "주방" },
       ];
-      console.log("defaultHouseRooms:", defaultHouseRooms);
 
       await HouseRoom.bulkCreate(defaultHouseRooms);
 

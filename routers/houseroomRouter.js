@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const houseRoomController = require("../controllers/houseRoomController");
+const houseRoomController = require("../controllers/houseroomController");
 const authController = require("../controllers/auth.controller");
 
 // 구역 목록 조회
