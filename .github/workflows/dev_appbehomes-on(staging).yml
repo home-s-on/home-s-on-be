@@ -51,6 +51,20 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
+
+      - name: 'Login to Azure'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 'Set up App Service settings'
+        run: |
+          az webapp config appsettings set --name appbehomes-on --resource-group your-resource-group --settings \
+          DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+          DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+          DB_NAME="${{ secrets.DB_NAME }}" \
+          DB_HOST="${{ secrets.DB_HOST }}" \
+          DB_DIALECT="${{ secrets.DB_DIALECT }}"
       
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
