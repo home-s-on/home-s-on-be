@@ -1,4 +1,5 @@
 const { Task, HouseRoom, UserHouse, User } = require("../models");
+const { Op } = require("sequelize");
 
 //<<모든 할일보기>>
 exports.getAllTasksByHouseId = async (req, res) => {
@@ -94,7 +95,9 @@ exports.getMyTasks = async (req, res) => {
     const tasks = await Task.findAll({
       where: {
         house_id: userHouse.house_id,
-        user_id: userId,
+        assignee_id: {
+          [Op.contains]: [userId], // userId가 assignee_id 배열에 포함되어 있는지 확인
+        },
       },
       include: [
         {
