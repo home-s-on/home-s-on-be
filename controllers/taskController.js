@@ -1,4 +1,5 @@
 const { Task, HouseRoom, UserHouse, User } = require("../models");
+const { Op } = require("sequelize");
 
 //<<모든 할일보기>>
 exports.getAllTasksByHouseId = async (req, res) => {
@@ -94,7 +95,9 @@ exports.getMyTasks = async (req, res) => {
     const tasks = await Task.findAll({
       where: {
         house_id: userHouse.house_id,
-        user_id: userId,
+        assignee_id: {
+          [Op.contains]: [userId], // userId가 assignee_id 배열에 포함되어 있는지 확인
+        },
       },
       include: [
         {
@@ -103,9 +106,9 @@ exports.getMyTasks = async (req, res) => {
         },
         {
           model: User,
-          as: "assignees",
+          as: "assignees", // Assignees를 가져오기 위한 설정
           attributes: ["id", "nickname"],
-          through: { attributes: [] },
+          through: { attributes: [] }, // 중간 테이블 속성 제외
         },
       ],
       order: [["createdAt", "DESC"]],
@@ -115,7 +118,29 @@ exports.getMyTasks = async (req, res) => {
       return res.status(200).json({ success: true, data: [] }); // 빈 배열 반환
     }
 
-    res.json({ success: true, data: tasks });
+    // 각 task의 assignee 정보 추가
+    const tasksWithAssignees = await Promise.all(
+      tasks.map(async (task) => {
+        const taskJson = task.toJSON();
+        const assignees = await UserHouse.findAll({
+          where: {
+            house_id: userHouse.house_id, // houseId를 userHouse.house_id로 수정
+            user_id: taskJson.assignee_id,
+          },
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+          ],
+        });
+
+        taskJson.assignees = assignees.map((assignee) => assignee.User);
+        return taskJson;
+      })
+    );
+
+    res.json({ success: true, data: tasksWithAssignees });
   } catch (error) {
     console.error("할일 목록을 가져올 수 없습니다:", error);
     res.status(500).json({
