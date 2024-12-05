@@ -37,7 +37,7 @@ module.exports = {
         type: Sequelize.BOOLEAN,
       },
       repeat_day: {
-        type: Sequelize.ARRAY(DataTypes.INTEGER),
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
       },
       assignee_id: {
         type: Sequelize.ARRAY(Sequelize.INTEGER),
