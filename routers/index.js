@@ -6,7 +6,7 @@ const houseApi = require("./house.api");
 const memberApi = require("./member.api");
 const taskApi = require("./taskRouter");
 const roomApi = require("./houseroomRouter");
-const apns = require("../utils/apns");
+const apns = require("./apns.api");
 
 router.use("/user", userApi);
 router.use("/auth", authApi);
