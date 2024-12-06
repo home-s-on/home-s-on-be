@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "apn": "^2.2.0",
     "apple-signin-auth": "^1.7.8",
     "axios": "^1.7.8",
     "bcryptjs": "^2.4.3",
