@@ -27,6 +27,13 @@ router.patch("/:taskId", authController.authenticate, taskController.editTask);
 //   taskController.editTask
 // );
 
+//할 일 완료
+router.patch(
+  "/:taskId/complete",
+  authController.authenticate,
+  taskController.completeTask
+);
+
 //할 일 삭제
 router.delete(
   "/delete/:taskId",

@@ -29,7 +29,11 @@ exports.getAllTasksByHouseId = async (req, res) => {
           attributes: ["id", "room_name"],
         },
       ],
-      order: [["createdAt", "DESC"]],
+      //order: [["createdAt", "DESC"]],
+      order: [
+        ["complete", "ASC"], // 완료되지 않은 항목이 먼저 오도록
+        ["createdAt", "DESC"], // 같은 완료 상태 내에서는 최신순
+      ],
     });
 
     if (tasks.length === 0) {
@@ -108,7 +112,11 @@ exports.getMyTasks = async (req, res) => {
           through: { attributes: [] },
         },
       ],
-      order: [["createdAt", "DESC"]],
+      //order: [["createdAt", "DESC"]],
+      order: [
+        ["complete", "ASC"], // 완료되지 않은 항목
+        ["createdAt", "DESC"], // 같은 완료 상태 최신순
+      ],
     });
 
     if (tasks.length === 0) {
@@ -339,6 +347,61 @@ exports.editTask = async (req, res) => {
     res.status(500).json({
       success: false,
       error: "할일을 수정할 수 없습니다.",
+    });
+  }
+};
+
+//할일완료
+exports.completeTask = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const taskId = parseInt(req.params.taskId);
+
+    const task = await Task.findOne({
+      where: { id: taskId },
+      include: [
+        {
+          model: HouseRoom,
+          attributes: ["id", "room_name"],
+        },
+      ],
+    });
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        error: "할일을 찾을 수 없습니다.",
+      });
+    }
+
+    // assignee_id가 배열인지 확인
+    const assigneeIds = Array.isArray(task.assignee_id)
+      ? task.assignee_id
+      : JSON.parse(task.assignee_id);
+
+    if (!assigneeIds.includes(userId)) {
+      return res.status(403).json({
+        success: false,
+        error: "할일 담당자만 완료할 수 있습니다.",
+      });
+    }
+
+    const updatedTask = await task.update({
+      complete: !task.complete,
+    });
+
+    res.json({
+      success: true,
+      data: updatedTask,
+      message: updatedTask.complete
+        ? "할일이 완료되었습니다."
+        : "할일 완료가 취소되었습니다.",
+    });
+  } catch (error) {
+    console.error("할일 완료 상태 변경 중 오류:", error);
+    res.status(500).json({
+      success: false,
+      error: "할일 완료 상태를 변경할 수 없습니다.",
     });
   }
 };
