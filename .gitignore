@@ -1,4 +1,5 @@
 node_modules
-.env
+cert
 
+.env
 .DS_store
