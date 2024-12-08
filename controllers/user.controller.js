@@ -109,6 +109,7 @@ userController.accountBasedEntry = async (req, res) => {
     const existingUserHouse = await UserHouse.findOne({
       where: { user_id: userId },
     });
+
     if (!existingUserHouse) {
       return res
         .status(200)
@@ -135,11 +136,31 @@ userController.accountBasedEntry = async (req, res) => {
         message: "main 뷰로 진입합니다.",
         data: existingMembers,
       });
-    } else {
-      return res
-        .status(200)
-        .json({ status: "success", message: "entry 뷰로 진입합니다." });
     }
+
+    // userHouse에서 house_id 추출
+    const houseId = existingUserHouse.house_id;
+
+    // house_id에 해당하는 house에서 invite_code 찾기
+    const house = await House.findOne({
+      where: { id: houseId },
+      attributes: ["invite_code"],
+    });
+
+    // house가 없을 경우 처리
+    if (!house) {
+      return res.status(400).json({
+        status: "fail",
+        message: "해당 house 정보를 찾을 수 없습니다.",
+      });
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "entry 뷰로 진입합니다.",
+      house_id: houseId,
+      invite_code: house.invite_code,
+    });
   } catch (e) {
     return res.status(400).json({ status: "fail", message: e.message });
   }
