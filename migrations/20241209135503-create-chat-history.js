@@ -13,10 +13,10 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       user_message: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       assistant_response: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       createdAt: {
         allowNull: false,

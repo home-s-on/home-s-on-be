@@ -5,6 +5,7 @@ const authController = require("../controllers/auth.controller");
 
 router.use(authController.authenticate);
 
-router.post("/", authController.authenticate, chatController.sendChat);
+router.post("/", chatController.sendChat);
+router.get("/", chatController.getChat);
 
 module.exports = router;

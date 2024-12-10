@@ -25,10 +25,10 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
       },
       user_message: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
       },
       assistant_response: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
       },
     },
     {
