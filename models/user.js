@@ -21,8 +21,8 @@ module.exports = (sequelize, DataTypes) => {
 
       // 중복 체크
       if (!this.deviceTokens.includes(newToken)) {
-        this.deviceTokens = [...this.deviceTokens, newToken];
-        await this.update({ deviceTokens: this.deviceTokens});
+        this.deviceTokens.push(newToken);
+        await this.update({ deviceTokens: this.deviceTokens });
       }
       // 저장 후 데이터베이스에 다시 조회하여 확인
       await this.reload();
