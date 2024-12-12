@@ -15,15 +15,18 @@ module.exports = (sequelize, DataTypes) => {
 
     // 디바이스 토큰을 추가하는 메서드
     async addDeviceToken(newToken) {
-      if (!this.deviceToken) {
-        this.deviceToken = [];
+      if (!this.deviceTokens) {
+        this.deviceTokens = [];
       }
 
       // 중복 체크
-      if (!this.deviceToken.includes(newToken)) {
-        this.deviceToken.push(newToken);
-        await this.save(); // 변경 사항 저장
+      if (!this.deviceTokens.includes(newToken)) {
+        this.deviceTokens = [...this.deviceTokens, newToken];
+        await this.update({ deviceTokens: this.deviceTokens});
       }
+      // 저장 후 데이터베이스에 다시 조회하여 확인
+      await this.reload();
+      //console.log(this.deviceTokens);
     }
 
     static associate(models) {
@@ -55,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
       photo: {
         type: DataTypes.STRING,
       },
-      deviceToken: {
+      deviceTokens: {
         type: DataTypes.ARRAY(DataTypes.STRING),
       },
       social_login_type: {
