@@ -19,6 +19,19 @@ apnsController.initializeApnProvider = () => {
   return new apn.Provider(option);
 };
 
+async function validateTokenWithPushTest(token) {
+  // try {
+  //   const response = await sendTestPushNotification(token);
+  //   return response.status === 200;
+  // } catch (error) {
+  //   if (error.response?.status === 400) {
+  //     await removeInvalidToken(token);
+  //     return false;
+  //   }
+  //   throw error;
+  // }
+}
+
 apnsController.sendPushNotification = async (req, res) => {
   if (!apnsController.apnProvider) {
     apnsController.apnProvider = apnsController.initializeApnProvider();
@@ -41,6 +54,9 @@ apnsController.sendPushNotification = async (req, res) => {
   //const deviceTokens = Array.isArray(deviceToken) ? deviceToken : [deviceToken];
   // [req.body.deviceToken]; //여러개 보내고 싶으면 여기에 담아서
   console.log("Device Tokens:", deviceTokens);
+
+  //토큰 유효성 검사
+  validateTokenWithPushTest(deviceTokens[0]);
 
   const noti = new apn.Notification();
   noti.alert = { title, subtitle, body };
