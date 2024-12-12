@@ -91,12 +91,19 @@ userController.updateDeviceToekn = async (req, res) => {
     console.log("deviceToken", deviceToken);
 
     const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ status: "fail", message: "사용자를 찾을 수 없습니다."});
+    }
+    
     await user.addDeviceToken(deviceToken);
-    return res.status(200).json({
-      status: "success",
-      message: "디바이스 토큰이 성공적으로 업데이트 되었습니다.",
-      data: user,
-    });
+
+      const updatedUser = await User.findOne({where: { id: userId }})
+      return res.status(200).json({
+        status: "success",
+        message: "디바이스 토큰이 성공적으로 업데이트 되었습니다.",
+        data: updatedUser,
+      });
+
   } catch (e) {
     return res.status(400).json({ status: "fail", message: e.message });
   }
