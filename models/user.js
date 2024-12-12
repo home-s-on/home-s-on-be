@@ -15,18 +15,43 @@ module.exports = (sequelize, DataTypes) => {
 
     // 디바이스 토큰을 추가하는 메서드
     async addDeviceToken(newToken) {
-      if (!this.deviceTokens) {
-        this.deviceTokens = [];
-      }
+      try {
+        if (!this.deviceTokens) {
+          this.deviceTokens = [];
+        }
 
-      // 중복 체크
-      if (!this.deviceTokens.includes(newToken)) {
-        this.deviceTokens.push(newToken);
-        await this.update({ deviceTokens: this.deviceTokens });
+        // 중복 체크
+        if (!this.deviceTokens.includes(newToken)) {
+          //this.deviceTokens.push(newToken);
+          const updatedTokens = [...this.deviceTokens, newToken];
+
+          //명시적으로 변경 사항을 알림
+          this.changed("deviceTokens", true);
+
+          const result = await this.update(
+            {
+              deviceTokens: updatedTokens,
+            },
+            {
+              //명시적으로 필드 지정
+              fields: ["deviceTokens"],
+            }
+          );
+
+          if (!result) {
+            throw new Error("데이터베이스 업데이트 실패");
+          }
+          //reload 전에 현재 인스턴스의 deviceTokens 업데이트
+          this.deviceTokens = updatedTokens;
+        }
+        // 저장 후 데이터베이스에 다시 조회하여 확인
+        await this.reload();
+      } catch (error) {
+        console.error("디바이스 토큰 추가 실패: ", error);
+        throw error;
+
       }
-      // 저장 후 데이터베이스에 다시 조회하여 확인
-      await this.reload();
-      //console.log(this.deviceTokens);
+      //console.log("리로드 후 토큰: ", this.deviceTokens);
     }
 
     static associate(models) {
