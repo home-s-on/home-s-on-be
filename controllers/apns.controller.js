@@ -30,11 +30,11 @@ apnsController.sendPushNotification = async (req, res) => {
   for (const userId of assigneeId) {
     const user = await User.findOne({
       where: { id: userId },
-      attributes: ["deviceToken"],
+      attributes: ["deviceTokens"],
     });
 
-    if (user && user.deviceToken) {
-      deviceTokens.push(user.deviceToken);
+    if (user && user.deviceTokens) {
+      deviceTokens.push(user.deviceTokens);
     }
   }
 
@@ -50,7 +50,7 @@ apnsController.sendPushNotification = async (req, res) => {
   try {
     const result = await apnsController.apnProvider.send(noti, deviceTokens);
     console.log("result:", result);
-    res.json({ success: true, result });
+    res.json({ success: true, message: "success push notification", result });
   } catch (error) {
     console.log(err);
     res.status(500).json({

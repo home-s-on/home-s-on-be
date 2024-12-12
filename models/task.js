@@ -34,6 +34,17 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "task_id",
         otherKey: "user_id",
       });
+
+      // 반복요일관련
+      Task.belongsTo(Task, {
+        as: "parentTask",
+        foreignKey: "parent_task_id",
+      });
+
+      Task.hasMany(Task, {
+        as: "childTasks",
+        foreignKey: "parent_task_id",
+      });
     }
   }
   Task.init(
@@ -77,6 +88,20 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
       },
       complete: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      // 새로운 필드 추가
+      parent_task_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: "tasks",
+          key: "id",
+        },
+      },
+      is_recurring: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false,

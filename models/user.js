@@ -49,6 +49,7 @@ module.exports = (sequelize, DataTypes) => {
       } catch (error) {
         console.error("디바이스 토큰 추가 실패: ", error);
         throw error;
+
       }
       //console.log("리로드 후 토큰: ", this.deviceTokens);
     }
