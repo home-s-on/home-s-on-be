@@ -7,5 +7,6 @@ router.use(authController.authenticate);
 
 router.post("/", chatController.sendChat);
 router.get("/", chatController.getChat);
+router.post("/motivation", chatController.motivationChat);
 
 module.exports = router;
