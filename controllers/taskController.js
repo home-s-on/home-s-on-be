@@ -359,31 +359,33 @@ exports.editTask = async (req, res) => {
   try {
     const userId = req.userId;
     const taskId = parseInt(req.params.taskId);
-    // const houseId = req.query.house_id;
-    const { house_room_id, title, memo, alarm, assignee_id, due_date } =
-      req.body;
+    const {
+      house_room_id,
+      title,
+      memo,
+      alarm,
+      assignee_id,
+      due_date,
+      repeat_day,
+    } = req.body;
 
     // 할일 존재 여부 확인
     const task = await Task.findOne({
-      where: {
-        id: taskId,
-        // house_id: houseId,
-      },
+      where: { id: taskId },
+      include: [{ model: Task, as: "childTasks" }],
     });
 
     if (!task) {
-      return res.status(404).json({
-        success: false,
-        error: "할일을 찾을 수 없습니다.",
-      });
+      return res
+        .status(404)
+        .json({ success: false, error: "할일을 찾을 수 없습니다." });
     }
 
     // 작성자 본인인지 확인
     if (task.user_id !== userId) {
-      return res.status(403).json({
-        success: false,
-        error: "수정 권한이 없습니다.",
-      });
+      return res
+        .status(403)
+        .json({ success: false, error: "수정 권한이 없습니다." });
     }
 
     // 할일 수정
@@ -394,33 +396,63 @@ exports.editTask = async (req, res) => {
       alarm,
       assignee_id,
       due_date,
+      repeat_day: repeat_day || null,
+      is_recurring: repeat_day && repeat_day.length > 0,
     });
+
+    // 반복 할일 처리
+    if (repeat_day && repeat_day.length > 0 && due_date) {
+      // 기존 자식 태스크 삭제
+      await Task.destroy({ where: { parent_task_id: task.id } });
+
+      // 새로운 반복 할일 생성
+      let nextDate = new Date();
+      const endDate = new Date(due_date);
+
+      nextDate.setHours(0, 0, 0, 0);
+      endDate.setHours(0, 0, 0, 0);
+
+      while (nextDate <= endDate) {
+        if (repeat_day.includes(nextDate.getDay())) {
+          await Task.create({
+            house_id: task.house_id,
+            house_room_id,
+            title,
+            memo,
+            alarm,
+            assignee_id,
+            due_date: new Date(nextDate),
+            complete: false,
+            user_id: userId,
+            repeat_day,
+            is_recurring: true,
+            parent_task_id: task.id,
+          });
+          break;
+        }
+        nextDate.setDate(nextDate.getDate() + 1);
+      }
+    } else {
+      // 반복이 아닌 경우 자식 태스크 삭제
+      await Task.destroy({ where: { parent_task_id: task.id } });
+    }
 
     // 수정된 할일 조회
     const updatedTask = await Task.findOne({
       where: { id: taskId },
       include: [
-        {
-          model: HouseRoom,
-          attributes: ["id", "room_name"],
-        },
-        {
-          model: User,
-          attributes: ["id", "nickname"],
-        },
+        { model: HouseRoom, attributes: ["id", "room_name"] },
+        { model: User, attributes: ["id", "nickname"] },
+        { model: Task, as: "childTasks", attributes: ["id", "due_date"] },
       ],
     });
 
-    res.json({
-      success: true,
-      data: updatedTask,
-    });
+    res.json({ success: true, data: updatedTask });
   } catch (error) {
     console.error("할일 수정 중 오류:", error);
-    res.status(500).json({
-      success: false,
-      error: "할일을 수정할 수 없습니다.",
-    });
+    res
+      .status(500)
+      .json({ success: false, error: "할일을 수정할 수 없습니다." });
   }
 };
 
