@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
       photo: {
         type: DataTypes.STRING,
       },
-      deviceToken: {
+      deviceTokens: {
         type: DataTypes.ARRAY(DataTypes.STRING),
       },
       social_login_type: {

@@ -242,11 +242,17 @@ const getHouseMembers = async (houseId) => {
 exports.addTask = async (req, res) => {
   try {
     const userId = req.userId;
+    const {
+      house_room_id,
+      title,
+      memo,
+      alarm,
+      assignee_id,
+      due_date,
+      repeat_day,
+    } = req.body;
 
-    const { house_room_id, title, memo, alarm, assignee_id, due_date } =
-      req.body;
-
-    // 필수 정보
+    // 필수 정보 확인
     if (!house_room_id || !title || !assignee_id) {
       return res.status(400).json({
         success: false,
@@ -268,7 +274,7 @@ exports.addTask = async (req, res) => {
       });
     }
 
-    //새 할일 생성
+    // 새 할일 생성 (부모 태스크)
     const newTask = await Task.create({
       house_id: userHouse.house_id,
       house_room_id,
@@ -276,12 +282,45 @@ exports.addTask = async (req, res) => {
       memo,
       alarm,
       assignee_id,
-      due_date,
-      complete: false, // 기본 false , 완료 true
+      due_date, // 마감일 설정
+      complete: false,
       user_id: userId,
+      repeat_day: repeat_day || null,
+      is_recurring: repeat_day && repeat_day.length > 0,
     });
 
-    //생성한 새 할 일 정보 조회
+    // 반복 할일 생성
+    if (repeat_day && repeat_day.length > 0 && due_date) {
+      let nextDate = new Date();
+      const endDate = new Date(due_date);
+
+      nextDate.setHours(0, 0, 0, 0);
+      endDate.setHours(0, 0, 0, 0);
+
+      // 첫 번째 반복일 찾기
+      while (nextDate <= endDate) {
+        if (repeat_day.includes(nextDate.getDay())) {
+          await Task.create({
+            house_id: userHouse.house_id,
+            house_room_id,
+            title,
+            memo,
+            alarm,
+            assignee_id,
+            due_date: new Date(nextDate),
+            complete: false,
+            user_id: userId,
+            repeat_day,
+            is_recurring: true,
+            parent_task_id: newTask.id,
+          });
+          break;
+        }
+        nextDate.setDate(nextDate.getDate() + 1);
+      }
+    }
+
+    // 생성된 할일 조회
     const createdTask = await Task.findOne({
       where: { id: newTask.id },
       include: [
@@ -292,6 +331,15 @@ exports.addTask = async (req, res) => {
         {
           model: User,
           attributes: ["id", "nickname"],
+        },
+        {
+          model: Task,
+          as: "childTasks",
+          attributes: ["id", "due_date"],
+          where: {
+            parent_task_id: newTask.id,
+          },
+          required: false,
         },
       ],
     });
@@ -382,6 +430,7 @@ exports.completeTask = async (req, res) => {
     const userId = req.userId;
     const taskId = parseInt(req.params.taskId);
 
+    // 할일 조회 시 연관 정보도 함께 가져오기
     const task = await Task.findOne({
       where: { id: taskId },
       include: [
@@ -389,45 +438,119 @@ exports.completeTask = async (req, res) => {
           model: HouseRoom,
           attributes: ["id", "room_name"],
         },
+        {
+          model: Task,
+          as: "childTasks",
+          attributes: ["id", "due_date"],
+          where: {
+            parent_task_id: taskId,
+          },
+          required: false,
+        },
       ],
     });
 
     if (!task) {
-      return res.status(404).json({
-        success: false,
-        error: "할일을 찾을 수 없습니다.",
-      });
+      return res
+        .status(404)
+        .json({ success: false, error: "할일을 찾을 수 없습니다." });
     }
 
     // assignee_id가 배열인지 확인
     const assigneeIds = Array.isArray(task.assignee_id)
       ? task.assignee_id
       : JSON.parse(task.assignee_id);
-
     if (!assigneeIds.includes(userId)) {
-      return res.status(403).json({
-        success: false,
-        error: "할일 담당자만 완료할 수 있습니다.",
-      });
+      return res
+        .status(403)
+        .json({ success: false, error: "할일 담당자만 완료할 수 있습니다." });
     }
 
-    const updatedTask = await task.update({
-      complete: !task.complete,
+    const updatedTask = await task.update({ complete: !task.complete });
+
+    // 반복 할일이고 완료 처리된 경우에만 다음 할일 생성
+    if (
+      task.is_recurring &&
+      task.repeat_day &&
+      task.repeat_day.length > 0 &&
+      updatedTask.complete
+    ) {
+      console.log("Creating next recurring task...");
+      const currentDate = new Date(task.due_date);
+      const nextDate = new Date(currentDate);
+      const originalEndDate = new Date(
+        task.parent_task_id
+          ? (await Task.findByPk(task.parent_task_id)).due_date
+          : task.due_date
+      );
+
+      // 다음 반복 날짜 찾기
+      do {
+        nextDate.setDate(nextDate.getDate() + 7); // 7일 후로 설정
+      } while (!task.repeat_day.includes(nextDate.getDay()));
+
+      console.log("Next recurring date:", nextDate);
+
+      // 다음 반복 날짜가 원래 마감일을 초과하지 않는 경우에만 새 할일 생성
+      if (nextDate <= originalEndDate) {
+        const newRecurringTask = await Task.create({
+          house_id: task.house_id,
+          house_room_id: task.house_room_id,
+          title: task.title,
+          memo: task.memo,
+          alarm: task.alarm,
+          assignee_id: task.assignee_id,
+          due_date: nextDate,
+          complete: false,
+          user_id: task.user_id,
+          repeat_day: task.repeat_day,
+          is_recurring: true,
+          parent_task_id: task.parent_task_id || task.id,
+        });
+        console.log("Created new recurring task:", newRecurringTask.id);
+      } else {
+        console.log(
+          "Next recurring date exceeds original end date. No new task created."
+        );
+      }
+    }
+
+    // 업데이트된 할일 정보 조회
+    const completedTask = await Task.findOne({
+      where: { id: taskId },
+      include: [
+        {
+          model: HouseRoom,
+          attributes: ["id", "room_name"],
+        },
+        {
+          model: User,
+          attributes: ["id", "nickname"],
+        },
+        {
+          model: Task,
+          as: "childTasks",
+          attributes: ["id", "due_date"],
+          where: {
+            parent_task_id: taskId,
+          },
+          required: false,
+        },
+      ],
     });
 
     res.json({
       success: true,
-      data: updatedTask,
+      data: completedTask,
       message: updatedTask.complete
         ? "할일이 완료되었습니다."
         : "할일 완료가 취소되었습니다.",
     });
   } catch (error) {
     console.error("할일 완료 상태 변경 중 오류:", error);
-    res.status(500).json({
-      success: false,
-      error: "할일 완료 상태를 변경할 수 없습니다.",
-    });
+    res
+      .status(500)
+      .json({ success: false, error: "할일 완료 상태를 변경할 수 없습니다." });
   }
 };
 
