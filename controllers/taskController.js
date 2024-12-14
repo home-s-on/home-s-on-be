@@ -441,7 +441,6 @@ exports.completeTask = async (req, res) => {
         .json({ success: false, error: "할일을 찾을 수 없습니다." });
     }
 
-    //담당자
     const assigneeIds = Array.isArray(task.assignee_id)
       ? task.assignee_id
       : JSON.parse(task.assignee_id);
@@ -451,20 +450,17 @@ exports.completeTask = async (req, res) => {
         .json({ success: false, error: "할일 담당자만 완료할 수 있습니다." });
     }
 
-    //할일 -> 완료 상태 업데이트
     const updatedTask = await task.update({ complete: true });
 
     let nextTask = null;
-    //반복할일 -> 다음주 요일 할일 생성
     if (task.is_recurring && task.repeat_day && task.repeat_day.length > 0) {
-      //다음 날짜 계산
       const nextDate = getNextOccurrence(
         new Date(task.due_date),
-        task.repeat_day
+        task.repeat_day,
+        task.end_date ? new Date(task.end_date) : null
       );
 
-      //다음 날짜가 존재한다면...-> 새로운 할일 생성!
-      if (nextDate) {
+      if (nextDate && (!task.end_date || nextDate <= new Date(task.end_date))) {
         nextTask = await Task.create({
           house_id: task.house_id,
           house_room_id: task.house_room_id,
@@ -477,8 +473,13 @@ exports.completeTask = async (req, res) => {
           user_id: task.user_id,
           repeat_day: task.repeat_day,
           is_recurring: true,
+          end_date: task.end_date,
         });
         console.log("New recurring task created:", nextTask.id);
+      } else {
+        console.log(
+          "반복 종료일을 초과하여 새로운 할일이 생성되지 않았습니다."
+        );
       }
     }
 
